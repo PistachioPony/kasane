@@ -89,6 +89,7 @@ function loadPuzzle(index) {
               <span class="card-label">${item.label}</span>
               <span class="card-sub">${item.sub}</span>
             </div>
+            <span class="card-drag-handle">⠿</span>
           </div>
         `;
       }).join('')}

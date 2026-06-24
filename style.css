@@ -199,7 +199,7 @@ body::before {
 
 .puzzle-count {
   font-size: 0.75rem;
-  color: var(--grey);
+  color: var(--ecru-dim);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   margin-bottom: 6px;
@@ -222,7 +222,7 @@ body::before {
 
 .attempts-left {
   font-size: 0.8rem;
-  color: var(--grey);
+  color: var(--ecru-dim);
   letter-spacing: 0.05em;
 }
 
@@ -272,10 +272,10 @@ body::before {
 .card-drag-handle {
   position: relative;
   z-index: 1;
-  font-size: 1.3rem;
+  font-size: 1.6rem;
   color: var(--ecru);
   opacity: 0.7;
-  padding-right: 14px;
+  padding: 8px 14px;
   touch-action: none;
   cursor: grab;
   flex-shrink: 0;
