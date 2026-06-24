@@ -459,7 +459,7 @@ body::before {
 
 .share-label {
   font-size: 0.7rem;
-  color: var(--grey);
+  color: var(--ecru);
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
