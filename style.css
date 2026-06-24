@@ -171,6 +171,11 @@ body::before {
   transform: scale(0.97);
 }
 
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* --- FOOTER --- */
 .site-footer {
   margin-top: auto;
