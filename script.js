@@ -225,6 +225,12 @@ function showInfoCard(puzzle, playerOrder, won) {
       }).join('')}
     </div>
 
+    <div class="share-section">
+      <p class="share-label">Share your result</p>
+      <canvas id="puzzle-share-canvas" class="share-card-canvas"></canvas>
+      <button id="btn-share-puzzle" class="btn-share">SHARE / SAVE IMAGE</button>
+    </div>
+
     <div class="results-actions">
       <button id="btn-next" class="btn-primary">
         ${state.currentPuzzleIndex < PUZZLES.length - 1 ? 'NEXT PUZZLE →' : 'FINISH'}
@@ -234,6 +240,16 @@ function showInfoCard(puzzle, playerOrder, won) {
 
   showScreen('results');
 
+  // Draw the share card once fonts are ready, then wire up the share button
+  const attemptsUsed = state.results[state.results.length - 1].attempts;
+  document.fonts.ready.then(() => {
+    const canvas = document.getElementById('puzzle-share-canvas');
+    drawPuzzleCard(canvas, puzzle, state.currentPuzzleIndex, attemptsUsed, won);
+    document.getElementById('btn-share-puzzle').addEventListener('click', () => {
+      shareCard(canvas, `kasane-puzzle-${state.currentPuzzleIndex + 1}.png`);
+    });
+  });
+
   document.getElementById('btn-next').addEventListener('click', () => {
     if (state.currentPuzzleIndex < PUZZLES.length - 1) {
       state.currentPuzzleIndex++;
@@ -241,12 +257,208 @@ function showInfoCard(puzzle, playerOrder, won) {
       loadPuzzle(state.currentPuzzleIndex);
     } else {
       showScreen('congrats');
+      document.fonts.ready.then(() => {
+        const container = document.getElementById('final-card-container');
+        const canvas = document.createElement('canvas');
+        canvas.className = 'share-card-canvas';
+        drawFinalCard(canvas, state.results);
+        const btn = document.createElement('button');
+        btn.className = 'btn-share';
+        btn.textContent = 'SHARE YOUR TITLE';
+        btn.addEventListener('click', () => shareCard(canvas, 'kasane-title.png'));
+        container.appendChild(canvas);
+        container.appendChild(btn);
+      });
     }
   });
 }
 
 // --------------------------------
-// 10. ENFORCE LOCKED POSITIONS
+// 10. SHARE CARDS
+// Two canvas-based share cards: one per puzzle, one final title card.
+// Canvas lets us generate a real image (1080×1080px) that players
+// can save and post to Instagram — like Wordle cards but more visual.
+// --------------------------------
+
+function calculateTitle(results) {
+  const total = results.reduce((sum, r) => sum + r.attempts, 0);
+  if (total === results.length)      return 'IRON HEART';  // all first try
+  if (total <= results.length + 3)   return 'SAMURAI';
+  if (total <= results.length + 7)   return 'DENIM HEAD';
+  return 'RAW RECRUIT';
+}
+
+// Wraps long text across multiple lines on a canvas context
+function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+  const words = text.split(' ');
+  let line = '';
+  let currentY = y;
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i] + ' ';
+    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
+      ctx.fillText(line.trim(), x, currentY);
+      line = words[i] + ' ';
+      currentY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  ctx.fillText(line.trim(), x, currentY);
+}
+
+function drawCardBase(ctx, W, H) {
+  ctx.fillStyle = '#1a1f3c';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#b87333';
+  ctx.lineWidth = 10;
+  ctx.strokeRect(40, 40, W - 80, H - 80);
+
+  ctx.strokeStyle = 'rgba(184,115,51,0.25)';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(58, 58, W - 116, H - 116);
+
+  ctx.fillStyle = '#f5f0e8';
+  ctx.font = 'normal 108px "Alfa Slab One"';
+  ctx.textAlign = 'center';
+  ctx.shadowColor = '#b87333';
+  ctx.shadowOffsetX = 4;
+  ctx.shadowOffsetY = 4;
+  ctx.shadowBlur = 0;
+  ctx.fillText('KASANE', W / 2, 182);
+  ctx.shadowColor = 'transparent';
+
+  ctx.fillStyle = '#b87333';
+  ctx.font = '300 38px "Noto Sans JP"';
+  ctx.fillText('重ねる · かさねる', W / 2, 248);
+
+  ctx.strokeStyle = '#b87333';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(160, 288);
+  ctx.lineTo(920, 288);
+  ctx.stroke();
+
+  ctx.strokeStyle = '#b87333';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(160, 928);
+  ctx.lineTo(920, 928);
+  ctx.stroke();
+
+  ctx.fillStyle = '#555e7a';
+  ctx.font = '300 26px "Noto Sans JP"';
+  ctx.fillText('pistachiopony.github.io/kasane', W / 2, 984);
+}
+
+function drawPuzzleCard(canvas, puzzle, puzzleIndex, attemptsUsed, won) {
+  const W = 1080, H = 1080;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  drawCardBase(ctx, W, H);
+
+  ctx.fillStyle = '#555e7a';
+  ctx.font = '300 30px "Noto Sans JP"';
+  ctx.textAlign = 'center';
+  ctx.fillText(`PUZZLE ${puzzleIndex + 1} OF ${PUZZLES.length}`, W / 2, 390);
+
+  ctx.fillStyle = '#f5f0e8';
+  ctx.font = 'normal 70px "Alfa Slab One"';
+  wrapText(ctx, puzzle.title.toUpperCase(), W / 2, 490, 880, 84);
+
+  const resultText = !won
+    ? 'ANSWER REVEALED'
+    : attemptsUsed === 1
+      ? 'SOLVED FIRST TRY'
+      : `SOLVED IN ${attemptsUsed} ATTEMPTS`;
+
+  ctx.fillStyle = won ? '#b87333' : '#555e7a';
+  ctx.font = 'normal 58px "Alfa Slab One"';
+  ctx.fillText(resultText, W / 2, 630);
+
+  if (puzzleIndex < PUZZLES.length - 1) {
+    ctx.fillStyle = '#c8bfb0';
+    ctx.font = '300 30px "Noto Sans JP"';
+    ctx.fillText('Complete all 5 to earn your denim title →', W / 2, 790);
+  }
+}
+
+function drawFinalCard(canvas, results) {
+  const W = 1080, H = 1080;
+  canvas.width = W;
+  canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  drawCardBase(ctx, W, H);
+
+  const title = calculateTitle(results);
+  const total = results.reduce((sum, r) => sum + r.attempts, 0);
+  const firstTries = results.filter(r => r.attempts === 1).length;
+
+  ctx.fillStyle = '#555e7a';
+  ctx.font = '300 32px "Noto Sans JP"';
+  ctx.textAlign = 'center';
+  ctx.fillText('YOUR DENIM TITLE', W / 2, 400);
+
+  const titleSize = title.length > 10 ? 96 : 116;
+  ctx.fillStyle = '#b87333';
+  ctx.shadowColor = 'rgba(184,115,51,0.5)';
+  ctx.shadowOffsetX = 6;
+  ctx.shadowOffsetY = 6;
+  ctx.shadowBlur = 0;
+  ctx.font = `normal ${titleSize}px "Alfa Slab One"`;
+  ctx.fillText(title, W / 2, 540);
+  ctx.shadowColor = 'transparent';
+
+  ctx.fillStyle = '#c8bfb0';
+  ctx.font = '300 30px "Noto Sans JP"';
+  const scoreText = firstTries === 5
+    ? 'All 5 puzzles solved on the first try'
+    : `${total} total attempts · ${firstTries} first-try solve${firstTries !== 1 ? 's' : ''}`;
+  ctx.fillText(scoreText, W / 2, 660);
+
+  // One diamond per puzzle — filled if first try, outline if solved, dot if revealed
+  ctx.font = '300 52px "Noto Sans JP"';
+  const symbols = results.map(r =>
+    r.attempts === 1 ? '◆' : r.attempts < 5 ? '◇' : '·'
+  ).join('  ');
+  ctx.fillStyle = '#b87333';
+  ctx.fillText(symbols, W / 2, 790);
+}
+
+async function shareCard(canvas, filename) {
+  return new Promise(resolve => {
+    canvas.toBlob(async blob => {
+      const file = new File([blob], filename, { type: 'image/png' });
+
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        try {
+          await navigator.share({ files: [file], title: 'Kasane' });
+          resolve();
+          return;
+        } catch (e) {
+          if (e.name === 'AbortError') { resolve(); return; }
+          // share failed for another reason — fall through to download
+        }
+      }
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      resolve();
+    }, 'image/png');
+  });
+}
+
+// --------------------------------
+// 11. ENFORCE LOCKED POSITIONS
 // After any drag move, checks that locked cards are still in their
 // correct DOM positions and restores them if they've been displaced.
 // This is needed because insertBefore can shift cards below the
