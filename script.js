@@ -161,7 +161,6 @@ function checkAnswer() {
 
   if (isCorrect) {
     state.results.push({ puzzleId: puzzle.id, title: puzzle.title, attempts: 6 - state.attemptsLeft });
-    saveProgress();
 
     // Flash all cards copper and show a victory message
     cardEls.forEach(card => {
@@ -211,7 +210,6 @@ function checkAnswer() {
     // can see their final wrong attempt before the reveal.
     document.getElementById('attempts-count').textContent = '0 — see the answer below';
     state.results.push({ puzzleId: puzzle.id, title: puzzle.title, attempts: 5 });
-    saveProgress();
     setTimeout(() => showInfoCard(puzzle, playerOrder, false), 1500);
   } else {
     // Re-enable the button for the next attempt
@@ -285,6 +283,7 @@ function showInfoCard(puzzle, playerOrder, won) {
   document.getElementById('btn-next').addEventListener('click', () => {
     if (state.currentPuzzleIndex < PUZZLES.length - 1) {
       state.currentPuzzleIndex++;
+      saveProgress();
       showScreen('puzzle');
       loadPuzzle(state.currentPuzzleIndex);
     } else {

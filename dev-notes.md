@@ -157,3 +157,39 @@ setTimeout(() => {
 On mobile, "below the fold" means invisible — not just inconvenient. Critical UI elements should either be sticky or confirmed visible on all target screen sizes. When neither is certain, a preview scroll is an elegant way to orient users without adding permanent UI chrome.
 
 ---
+
+## Bug 5: localStorage saves wrong puzzle index (off by one)
+
+**File:** `script.js` → `checkAnswer()`, "Next Puzzle" button handler
+**Status:** Fixed
+**Date:** June 2026
+
+### What was happening
+
+After finishing puzzle 2 and closing the browser, reopening the game showed "CONTINUE → PUZZLE 2" — pointing back to the puzzle you just completed instead of puzzle 3.
+
+### Root cause
+
+`saveProgress()` was called immediately after pushing the result to `state.results`, which happens inside `checkAnswer()`. But `state.currentPuzzleIndex++` happens later — only when the player taps "NEXT PUZZLE →". So at the moment of saving, the index still pointed at the just-finished puzzle.
+
+Timeline:
+1. Player gets correct answer → `state.results.push(...)` then `saveProgress()` → saves index 1 (puzzle 2)
+2. Player taps "Next Puzzle" → `state.currentPuzzleIndex++` (now 2) → loads puzzle 3
+3. Player closes browser
+4. On reopen: saved index is 1 → "CONTINUE → PUZZLE 2" — wrong!
+
+### The fix
+
+Remove `saveProgress()` from `checkAnswer()` entirely. Instead, call it inside the "Next Puzzle" button handler, *after* incrementing the index:
+
+```javascript
+state.currentPuzzleIndex++;
+saveProgress(); // now saves the index of the puzzle they're about to play
+loadPuzzle(state.currentPuzzleIndex);
+```
+
+### The lesson
+
+Save state *after* all mutations are complete — not in the middle of a multi-step flow. Calling `saveProgress()` at the moment a result is recorded felt logical, but the index is a separate piece of state that updates later. The invariant to maintain: the saved `currentPuzzleIndex` should always be the next puzzle to play, not the one just finished.
+
+---
