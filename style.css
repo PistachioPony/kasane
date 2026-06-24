@@ -1,0 +1,219 @@
+/* ================================
+   KASANE — style.css
+   Japanese/Western selvedge aesthetic
+   ================================ */
+
+/* --- FONTS & ROOT VARIABLES ---
+   CSS variables work like constants in Python/Ruby.
+   Define once here, use everywhere below.
+   Change a color here and it updates the whole game. */
+:root {
+  --indigo:      #1a1f3c;
+  --indigo-mid:  #252b50;
+  --ecru:        #f5f0e8;
+  --ecru-dim:    #c8bfb0;
+  --copper:      #b87333;
+  --selvedge-red:#c0392b;
+  --white:       #ffffff;
+  --grey:        #555e7a;
+
+  --font-title:  'Alfa Slab One', serif;
+  --font-body:   'Noto Sans JP', sans-serif;
+}
+
+/* --- RESET ---
+   Browsers add default margins and padding we don't want.
+   This zeroes everything out so we start clean. */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- BASE ---
+   The body has the fabric texture, then #app sits on top
+   with a semi-transparent indigo overlay across the full page.
+   This tames the busy texture while keeping it visible. */
+body {
+  background-color: var(--indigo);
+  background-image: url('images/fabdetail.jpg');
+  background-size: 200px;
+  background-repeat: repeat;
+  color: var(--ecru);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Full-page overlay — sits between the texture and all content.
+   rgba(26, 31, 60, 0.82) means 82% opaque indigo, letting just
+   a hint of texture bleed through. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-color: rgba(26, 31, 60, 0.92);
+  pointer-events: none;
+  z-index: 0;
+}
+
+
+/* --- APP WRAPPER ---
+   Centers everything, max width so it doesn't stretch on desktop.
+   position:relative and z-index:1 sit it above the body::before overlay. */
+#app {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+/* --- SCREENS ---
+   All screens live in the DOM at once.
+   Only the one with class "active" is visible.
+   This is the core of our single-page navigation. */
+.screen {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+  padding: 40px 0 20px;
+}
+
+.screen.active {
+  display: flex;
+}
+
+/* --- TITLE SCREEN --- */
+.title-block {
+  text-align: center;
+  margin-bottom: 16px;
+  padding: 24px 16px;
+}
+
+.game-title {
+  font-family: var(--font-title);
+  font-size: 4rem;
+  letter-spacing: 0.15em;
+  color: var(--ecru);
+  text-shadow: 2px 2px 0px var(--copper);
+  line-height: 1;
+}
+
+.game-title-jp {
+  font-family: var(--font-body);
+  font-size: 1.2rem;
+  font-weight: 400;
+  color: var(--copper);
+  letter-spacing: 0.3em;
+  margin-top: 8px;
+}
+
+.game-subtitle {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--ecru);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-top: 6px;
+}
+
+/* --- PROVERB BLOCK ---
+   Using indigo-mid (a slightly lighter indigo) at 0.45 opacity
+   so the panel reads as blue, not dark brown. */
+.proverb-block {
+  text-align: center;
+  padding: 24px 16px;
+  margin-bottom: 40px;
+}
+
+.proverb-jp {
+  font-size: 1rem;
+  color: var(--ecru);
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+
+.proverb-en {
+  font-size: 0.8rem;
+  font-weight: 300;
+  color: var(--ecru-dim);
+  font-style: italic;
+  line-height: 1.6;
+}
+
+/* --- BUTTONS --- */
+.btn-primary {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  letter-spacing: 0.2em;
+  color: var(--indigo);
+  background-color: var(--copper);
+  border: none;
+  border-radius: 6px;
+  padding: 14px 48px;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.btn-primary:hover {
+  background-color: var(--ecru);
+}
+
+.btn-primary:active {
+  transform: scale(0.97);
+}
+
+/* --- FOOTER --- */
+.site-footer {
+  margin-top: auto;
+  padding: 20px 0 12px;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--grey);
+  line-height: 1.6;
+}
+
+.site-footer a {
+  color: var(--copper);
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+
+/* --- CONGRATS SCREEN --- */
+.congrats-block {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  justify-content: center;
+}
+
+.congrats-block h2 {
+  font-family: var(--font-title);
+  font-size: 1.6rem;
+  color: var(--ecru);
+  line-height: 1.4;
+}
+
+.follow-text {
+  font-size: 0.9rem;
+  color: var(--ecru-dim);
+  line-height: 1.8;
+}
+
+.follow-text strong {
+  color: var(--copper);
+}
