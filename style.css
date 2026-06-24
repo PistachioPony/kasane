@@ -273,7 +273,7 @@ body::before {
   position: relative;
   z-index: 1;
   font-size: 1.3rem;
-  color: var(--copper);
+  color: var(--ecru);
   opacity: 0.7;
   padding-right: 14px;
   touch-action: none;
