@@ -95,7 +95,9 @@ function loadPuzzle(index) {
       }).join('')}
     </div>
 
-    <button id="btn-submit" class="btn-primary">SUBMIT ORDER</button>
+    <div class="submit-bar">
+      <button id="btn-submit" class="btn-primary">SUBMIT ORDER</button>
+    </div>
   `;
 
   // Wire up the submit button after injecting the HTML.

@@ -190,6 +190,19 @@ body::before {
   text-decoration: underline;
 }
 
+/* --- STICKY SUBMIT BAR --- */
+.submit-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  padding: 12px 20px 24px;
+  background: linear-gradient(transparent, var(--indigo) 40%);
+  z-index: 10;
+}
+
 /* --- PUZZLE SCREEN --- */
 .puzzle-header {
   text-align: center;
@@ -238,6 +251,7 @@ body::before {
   flex-direction: column;
   gap: 10px;
   margin-bottom: 24px;
+  padding-bottom: 80px;
 }
 
 .card {
