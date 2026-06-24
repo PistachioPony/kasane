@@ -84,8 +84,11 @@ function loadPuzzle(index) {
         const item = puzzle.items.find(i => i.id === id);
         return `
           <div class="card" data-id="${item.id}">
-            <span class="card-label">${item.label}</span>
-            <span class="card-sub">${item.sub}</span>
+            <span class="card-drag-handle">⠿</span>
+            <div class="card-content">
+              <span class="card-label">${item.label}</span>
+              <span class="card-sub">${item.sub}</span>
+            </div>
           </div>
         `;
       }).join('')}
@@ -307,8 +310,8 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
 }
 
 function drawCardBase(ctx, W, H) {
-  // Raw linen background — feels like a physical denim hang tag
-  ctx.fillStyle = '#d4cabb';
+  // Ecru background — feels like a physical denim hang tag
+  ctx.fillStyle = '#f5f0e8';
   ctx.fillRect(0, 0, W, H);
 
   ctx.strokeStyle = '#b87333';
@@ -515,8 +518,9 @@ function initDragAndDrop() {
   const THRESHOLD = 8;
 
   function onPointerDown(e) {
-    if (e.currentTarget.dataset.locked) return; // locked cards can't be dragged
-    pendingCard = e.currentTarget;
+    const card = e.currentTarget.closest('.card');
+    if (card.dataset.locked) return;
+    pendingCard = card;
     startX = e.clientX;
     startY = e.clientY;
   }
@@ -567,8 +571,8 @@ function initDragAndDrop() {
     draggedCard = null;
   }
 
-  cardList.querySelectorAll('.card').forEach(card => {
-    card.addEventListener('pointerdown', onPointerDown);
+  cardList.querySelectorAll('.card-drag-handle').forEach(handle => {
+    handle.addEventListener('pointerdown', onPointerDown);
   });
 
   document.addEventListener('pointermove', onPointerMove);
