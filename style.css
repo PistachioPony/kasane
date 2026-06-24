@@ -590,6 +590,22 @@ body::before {
   color: var(--indigo);
 }
 
+/* Ko-fi support link on congrats screen */
+.kofi-link {
+  font-size: 0.8rem;
+  color: var(--ecru-dim);
+  text-decoration: none;
+  letter-spacing: 0.05em;
+  margin-top: 4px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.kofi-link:hover {
+  opacity: 1;
+  color: var(--copper);
+}
+
 /* START OVER link below CONTINUE button on title screen */
 .btn-start-over {
   font-family: var(--font-body);
