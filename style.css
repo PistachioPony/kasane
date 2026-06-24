@@ -48,6 +48,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  align-items: center;
   overflow-x: hidden;
 }
 
@@ -104,8 +105,8 @@ body::before {
 
 .game-title {
   font-family: var(--font-title);
-  font-size: 4rem;
-  letter-spacing: 0.15em;
+  font-size: clamp(2.6rem, 10vw, 4rem);
+  letter-spacing: clamp(0.05em, 1.5vw, 0.15em);
   color: var(--ecru);
   text-shadow: 2px 2px 0px var(--copper);
   line-height: 1;

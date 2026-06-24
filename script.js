@@ -293,21 +293,6 @@ function showInfoCard(puzzle, playerOrder, won) {
       clearProgress();
       showScreen('congrats');
 
-      const title = calculateTitle(finalResults);
-      const meta = TITLE_META[title];
-      const total = finalResults.reduce((sum, r) => sum + r.attempts, 0);
-      const firstTries = finalResults.filter(r => r.attempts === 1).length;
-      const scoreText = firstTries === 5
-        ? 'All 5 puzzles solved on the first try'
-        : `${total} attempts · ${firstTries} first-try solve${firstTries !== 1 ? 's' : ''}`;
-
-      document.getElementById('congrats-title-display').innerHTML = `
-        <p class="congrats-earned-label">YOUR DENIM TITLE</p>
-        <h2 class="congrats-title" style="color: ${meta.liveColor}">${title}</h2>
-        <p class="congrats-score">${scoreText}</p>
-        <span class="congrats-emoji">${meta.emoji}</span>
-      `;
-
       document.fonts.ready.then(() => {
         const container = document.getElementById('final-card-container');
         const canvas = document.createElement('canvas');
@@ -384,10 +369,10 @@ function calculateTitle(results) {
 }
 
 const TITLE_META = {
-  'IRON HEART':  { liveColor: '#c0392b', cardColor: '#c0392b', emoji: '🏆' },
-  'SAMURAI':     { liveColor: '#026ef5', cardColor: '#1a3a5c', emoji: '⚔️' },
-  'DENIM HEAD':  { liveColor: '#d4812a', cardColor: '#d4812a', emoji: '🧵' },
-  'RAW RECRUIT': { liveColor: '#a0522d', cardColor: '#a0522d', emoji: '🪡' },
+  'IRON HEART':  { cardColor: '#c0392b', emoji: '🏆' },
+  'SAMURAI':     { cardColor: '#1a3a5c', emoji: '⚔️' },
+  'DENIM HEAD':  { cardColor: '#d4812a', emoji: '🧵' },
+  'RAW RECRUIT': { cardColor: '#a0522d', emoji: '🪡' },
 };
 
 // Wraps long text across multiple lines on a canvas context
@@ -527,13 +512,8 @@ function drawFinalCard(canvas, results) {
     : `${total} total attempts · ${firstTries} first-try solve${firstTries !== 1 ? 's' : ''}`;
   ctx.fillText(scoreText, W / 2, 660);
 
-  // One diamond per puzzle — filled if first try, outline if solved, dot if revealed
-  ctx.font = '300 52px "Noto Sans JP"';
-  const symbols = results.map(r =>
-    r.attempts === 1 ? '◆' : r.attempts < 5 ? '◇' : '·'
-  ).join('  ');
-  ctx.fillStyle = '#b87333';
-  ctx.fillText(symbols, W / 2, 790);
+  ctx.font = '120px sans-serif';
+  ctx.fillText(TITLE_META[title].emoji, W / 2, 820);
 }
 
 async function shareCard(canvas, filename) {
