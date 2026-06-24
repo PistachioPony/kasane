@@ -261,13 +261,13 @@ function showInfoCard(puzzle, playerOrder, won) {
       }).join('')}
     </div>
 
-    <div class="results-actions">
+    <p class="sources-line">Facts sourced from Heddels, Denimhunters, Long John, Levi Strauss &amp; Co., BASF and Iron Heart.</p>
+
+    <div class="submit-bar">
       <button id="btn-next" class="btn-primary">
         ${state.currentPuzzleIndex < PUZZLES.length - 1 ? 'NEXT PUZZLE →' : 'FINISH'}
       </button>
     </div>
-
-    <p class="sources-line">Facts sourced from Heddels, Denimhunters, Long John, Levi Strauss &amp; Co., BASF and Iron Heart.</p>
   `;
 
   showScreen('results');
