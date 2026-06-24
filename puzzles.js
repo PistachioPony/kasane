@@ -77,7 +77,7 @@ const PUZZLES = [
     title: 'Into the Blue',
     instruction: 'Order these dyeing methods and innovations — earliest to most recent.',
     items: [
-      { id: 'hank',      label: 'Hank Dyeing',               sub: 'The original hand method' },
+      { id: 'hank',      label: 'Hank Dyeing',               sub: 'Hand bundle method' },
       { id: 'synthetic', label: 'Synthetic Indigo',          sub: 'Industrial era' },
       { id: 'rope',      label: 'Rope Dyeing',               sub: 'Bundle dip method' },
       { id: 'slasher',   label: 'Slasher / Sheet Dyeing',    sub: 'Continuous flat process' },
@@ -99,12 +99,12 @@ const PUZZLES = [
     title: 'Heavy Hitters',
     instruction: 'Order these brands by the weight of their signature heavyweight denim — lightest to heaviest.',
     items: [
-      { id: 'samurai-hh',  label: 'Samurai Jeans',  sub: '19oz Kiwami' },
-      { id: 'oni',         label: 'Oni Denim',       sub: '20oz Secret Denim' },
-      { id: 'ironheart-hh',label: 'Iron Heart',      sub: '21oz Signature' },
-      { id: 'tsg',         label: 'The Strike Gold', sub: '24.8oz Extra Hard' },
-      { id: 'soso-hh',     label: 'SoSo Brothers',   sub: '33oz Breaker of Legs' },
-      { id: 'nf-hh',       label: 'Naked & Famous',  sub: '40oz Super Heavyweight' },
+      { id: 'samurai-hh',  label: 'Samurai Jeans',  sub: 'Kiwami' },
+      { id: 'oni',         label: 'Oni Denim',       sub: 'Secret Denim' },
+      { id: 'ironheart-hh',label: 'Iron Heart',      sub: 'Signature Selvedge' },
+      { id: 'tsg',         label: 'The Strike Gold', sub: 'Extra Hard' },
+      { id: 'soso-hh',     label: 'SoSo Brothers',   sub: 'Breaker of Legs' },
+      { id: 'nf-hh',       label: 'Naked & Famous',  sub: 'Super Heavyweight' },
     ],
     correctOrder: ['samurai-hh', 'oni', 'ironheart-hh', 'tsg', 'soso-hh', 'nf-hh'],
     facts: [
