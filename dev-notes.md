@@ -158,7 +158,38 @@ On mobile, "below the fold" means invisible — not just inconvenient. Critical 
 
 ---
 
-## Bug 5: localStorage saves wrong puzzle index (off by one)
+## Bug 5: Submit button flashes ecru when tapped
+
+**File:** `style.css`
+**Status:** Fixed
+**Date:** June 2026
+
+### What was happening
+
+After tapping Submit, the button would briefly turn ecru (light cream) before returning to copper. Happened sometimes, not always — more noticeable when the answer check took slightly longer.
+
+### Root cause
+
+When Submit is tapped, `submitBtn.disabled = true` is set immediately to prevent double-tapping. While disabled, the browser applies its own default disabled appearance — which varies by browser/OS but often looks washed out or off-white. There was no explicit CSS overriding this.
+
+### The fix
+
+```css
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+```
+
+Now the button dims to 50% opacity (still copper, just darker) while processing, then snaps back to full opacity when re-enabled. Looks intentional rather than broken.
+
+### The lesson
+
+Always define `:disabled` styles explicitly. Browsers have their own default disabled appearance that varies across platforms and often clashes with custom designs. If you set `disabled` in JS, own what it looks like in CSS.
+
+---
+
+## Bug 6: localStorage saves wrong puzzle index (off by one)
 
 **File:** `script.js` → `checkAnswer()`, "Next Puzzle" button handler
 **Status:** Fixed
