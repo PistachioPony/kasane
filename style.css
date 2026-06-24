@@ -143,7 +143,7 @@ body::before {
 .proverb-jp {
   font-size: 1rem;
   color: var(--ecru);
-  letter-spacing: 0.1em;
+  letter-spacing: 0.04em;
   margin-bottom: 10px;
 }
 
