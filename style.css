@@ -533,6 +533,43 @@ body::before {
   color: var(--copper);
 }
 
+/* --- CONGRATS TITLE DISPLAY --- */
+#congrats-title-display {
+  width: 100%;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 20px 0 8px;
+}
+
+.congrats-earned-label {
+  font-size: 0.7rem;
+  color: var(--ecru-dim);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+}
+
+.congrats-title {
+  font-family: var(--font-title);
+  font-size: 3.2rem;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+}
+
+.congrats-score {
+  font-size: 0.85rem;
+  color: var(--ecru-dim);
+  letter-spacing: 0.08em;
+}
+
+.congrats-emoji {
+  font-size: 2.4rem;
+  line-height: 1;
+  padding-bottom: 4px;
+}
+
 /* PLAY AGAIN button on congrats screen */
 .btn-play-again {
   font-family: var(--font-title);

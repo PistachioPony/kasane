@@ -291,6 +291,22 @@ function showInfoCard(puzzle, playerOrder, won) {
     } else {
       clearProgress();
       showScreen('congrats');
+
+      const title = calculateTitle(state.results);
+      const meta = TITLE_META[title];
+      const total = state.results.reduce((sum, r) => sum + r.attempts, 0);
+      const firstTries = state.results.filter(r => r.attempts === 1).length;
+      const scoreText = firstTries === 5
+        ? 'All 5 puzzles solved on the first try'
+        : `${total} attempts · ${firstTries} first-try solve${firstTries !== 1 ? 's' : ''}`;
+
+      document.getElementById('congrats-title-display').innerHTML = `
+        <p class="congrats-earned-label">YOUR DENIM TITLE</p>
+        <h2 class="congrats-title" style="color: ${meta.liveColor}">${title}</h2>
+        <p class="congrats-score">${scoreText}</p>
+        <span class="congrats-emoji">${meta.emoji}</span>
+      `;
+
       document.fonts.ready.then(() => {
         const container = document.getElementById('final-card-container');
         const canvas = document.createElement('canvas');
@@ -360,11 +376,18 @@ initProgress();
 
 function calculateTitle(results) {
   const total = results.reduce((sum, r) => sum + r.attempts, 0);
-  if (total === results.length)      return 'IRON HEART';  // all first try
+  if (total === results.length)      return 'IRON HEART';
   if (total <= results.length + 3)   return 'SAMURAI';
   if (total <= results.length + 7)   return 'DENIM HEAD';
   return 'RAW RECRUIT';
 }
+
+const TITLE_META = {
+  'IRON HEART':  { liveColor: '#c0392b', cardColor: '#c0392b', emoji: '🏆' },
+  'SAMURAI':     { liveColor: '#026ef5', cardColor: '#1a3a5c', emoji: '⚔️' },
+  'DENIM HEAD':  { liveColor: '#d4812a', cardColor: '#d4812a', emoji: '🧵' },
+  'RAW RECRUIT': { liveColor: '#a0522d', cardColor: '#a0522d', emoji: '🪡' },
+};
 
 // Wraps long text across multiple lines on a canvas context
 function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
@@ -486,8 +509,9 @@ function drawFinalCard(canvas, results) {
   ctx.fillText('YOUR DENIM TITLE', W / 2, 400);
 
   const titleSize = title.length > 10 ? 96 : 116;
-  ctx.fillStyle = '#b87333';
-  ctx.shadowColor = 'rgba(184,115,51,0.5)';
+  const cardColor = TITLE_META[title].cardColor;
+  ctx.fillStyle = cardColor;
+  ctx.shadowColor = cardColor + '80';
   ctx.shadowOffsetX = 6;
   ctx.shadowOffsetY = 6;
   ctx.shadowBlur = 0;
