@@ -289,13 +289,14 @@ function showInfoCard(puzzle, playerOrder, won) {
       showScreen('puzzle');
       loadPuzzle(state.currentPuzzleIndex);
     } else {
+      const finalResults = [...state.results]; // snapshot before clearProgress resets state
       clearProgress();
       showScreen('congrats');
 
-      const title = calculateTitle(state.results);
+      const title = calculateTitle(finalResults);
       const meta = TITLE_META[title];
-      const total = state.results.reduce((sum, r) => sum + r.attempts, 0);
-      const firstTries = state.results.filter(r => r.attempts === 1).length;
+      const total = finalResults.reduce((sum, r) => sum + r.attempts, 0);
+      const firstTries = finalResults.filter(r => r.attempts === 1).length;
       const scoreText = firstTries === 5
         ? 'All 5 puzzles solved on the first try'
         : `${total} attempts · ${firstTries} first-try solve${firstTries !== 1 ? 's' : ''}`;
@@ -311,7 +312,7 @@ function showInfoCard(puzzle, playerOrder, won) {
         const container = document.getElementById('final-card-container');
         const canvas = document.createElement('canvas');
         canvas.className = 'share-card-canvas';
-        drawFinalCard(canvas, state.results);
+        drawFinalCard(canvas, finalResults);
         const btn = document.createElement('button');
         btn.className = 'btn-share';
         btn.textContent = 'SHARE YOUR TITLE';

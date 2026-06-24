@@ -60,7 +60,7 @@ const PUZZLES = [
       { id: 'samurai',   label: 'Samurai Jeans',    sub: 'Osaka, Japan' },
       { id: 'ironheart', label: 'Iron Heart',       sub: 'Japan' },
       { id: 'nf',        label: 'Naked & Famous',   sub: 'Montreal, Canada' },
-      { id: 'soso',      label: 'SoSo Brothers',    sub: 'Sweden' },
+      { id: 'soso',      label: 'SoSo Brothers',    sub: 'South of Stockholm' },
     ],
     correctOrder: ['bigjohn', 'sda', 'samurai', 'ironheart', 'nf', 'soso'],
     facts: [
@@ -69,7 +69,7 @@ const PUZZLES = [
       { id: 'samurai',   fact: 'Toru Nogami founded Samurai Jeans in 1997 in Osaka, sewing jeans by himself from the start with an obsessive focus on vintage American denim construction.' },
       { id: 'ironheart', fact: 'Shinichi Haraki founded Iron Heart in 2002 after 20 years in the garment industry, building ultra-heavy denim for Japan\'s motorcycle and biker communities.' },
       { id: 'nf',        fact: 'Brandon Svarc founded Naked & Famous in Montreal in 2008, rejecting celebrity culture to focus purely on the fabric and construction.' },
-      { id: 'soso',      fact: 'Founded in 2010 in Sweden by Jannis and Johan Blom — SOSO stands for South of Stockholm. They produce fully custom raw denim in Thailand.' },
+      { id: 'soso',      fact: 'Founded in 2010 in Sweden by Jannis and Johan Blom — SOSO stands for South of Stockholm. They produce fully custom raw denim.' },
     ],
   },
   {
