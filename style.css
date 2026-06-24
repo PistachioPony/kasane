@@ -30,6 +30,10 @@
   padding: 0;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 /* --- BASE ---
    The body has the fabric texture, then #app sits on top
    with a semi-transparent indigo overlay across the full page.
@@ -44,6 +48,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 /* Full-page overlay — sits between the texture and all content.
