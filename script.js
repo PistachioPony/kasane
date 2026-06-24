@@ -106,6 +106,15 @@ function loadPuzzle(index) {
 
   // Activate drag and drop on the cards
   initDragAndDrop();
+
+  // Preview scroll — briefly scroll down to show all cards and the submit
+  // button exist, then return to top. Lets the player know what they're working with.
+  setTimeout(() => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+    setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }, 900);
+  }, 500);
 }
 
 // --------------------------------
