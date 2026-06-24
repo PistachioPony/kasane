@@ -556,6 +556,16 @@ function initDragAndDrop() {
       draggedCard.style.pointerEvents = 'none';
     }
 
+    // Edge scrolling — when dragging near the top or bottom of the viewport,
+    // nudge the page so cards below (or above) the visible area become reachable.
+    const SCROLL_ZONE = 80;
+    const SCROLL_SPEED = 6;
+    if (e.clientY > window.innerHeight - SCROLL_ZONE) {
+      window.scrollBy(0, SCROLL_SPEED);
+    } else if (e.clientY < SCROLL_ZONE) {
+      window.scrollBy(0, -SCROLL_SPEED);
+    }
+
     // Find the card under the pointer and swap if needed
     const below = document.elementFromPoint(e.clientX, e.clientY);
     const target = below?.closest('.card');
