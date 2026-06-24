@@ -490,6 +490,16 @@ body::before {
   color: var(--indigo);
 }
 
+.sources-line {
+  font-size: 0.65rem;
+  color: var(--grey);
+  text-align: center;
+  letter-spacing: 0.05em;
+  line-height: 1.6;
+  padding: 0 10px 24px;
+  opacity: 0.7;
+}
+
 /* --- CONGRATS SCREEN --- */
 .congrats-block {
   text-align: center;

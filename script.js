@@ -251,6 +251,8 @@ function showInfoCard(puzzle, playerOrder, won) {
         ${state.currentPuzzleIndex < PUZZLES.length - 1 ? 'NEXT PUZZLE →' : 'FINISH'}
       </button>
     </div>
+
+    <p class="sources-line">Facts sourced from Heddels, Denimhunters, Long John, Levi Strauss &amp; Co., BASF and Iron Heart.</p>
   `;
 
   showScreen('results');
