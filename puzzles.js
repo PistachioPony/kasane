@@ -42,7 +42,7 @@ const PUZZLES = [
     ],
     correctOrder: ['chore', 'levi1', 'lee101j', 'n1', 'levi2', 'levi3'],
     facts: [
-      { id: 'chore',   fact: 'The French Chore Coat (bleu de travail) dates to 1844, created by Adolphe Lafont for French manual workers. His brand still exists today.' },
+      { id: 'chore',   fact: 'The French Chore Coat (bleu de travail) emerged in the late 19th century, worn by French manual workers and dyed a distinctive indigo blue — giving rise to the term \'bleu de travail,\' meaning blue work. The style remains a workwear icon today.' },
       { id: 'levi1',   fact: "The Levi's Type 1 (506XX) debuted in 1905 — identifiable by its cinch-back and single chest pocket. Early versions had no red tab." },
       { id: 'lee101j', fact: 'Lee introduced the 101J in 1934 as a companion to their 101 jeans — the first slim-fit denim jacket, designed for ranch work.' },
       { id: 'n1',      fact: 'The US Navy N-1 Deck Jacket was introduced in 1943 with jungle cloth exterior and alpaca lining. It became standard issue for sailors.' },
@@ -66,7 +66,7 @@ const PUZZLES = [
     facts: [
       { id: 'bigjohn',   fact: "Founded in 1940 as Maruo Hifuku, Big John produced Japan's first domestically made jeans in 1965 using imported denim fabric." },
       { id: 'sda',       fact: "Studio D'Artisan was founded in Osaka in 1979 by Shigeharu Tagaki. It was an original member of the legendary Osaka 5." },
-      { id: 'samurai',   fact: 'Toru Nogami founded Samurai Jeans in 1997 in a tiny one-room apartment in Nishinomiya, sewing jeans by himself from the start.' },
+      { id: 'samurai',   fact: 'Toru Nogami founded Samurai Jeans in 1997 in Osaka, sewing jeans by himself from the start with an obsessive focus on vintage American denim construction.' },
       { id: 'ironheart', fact: 'Shinichi Haraki founded Iron Heart in 2002 after 20 years in the garment industry, building ultra-heavy denim for Japan\'s motorcycle and biker communities.' },
       { id: 'nf',        fact: 'Brandon Svarc founded Naked & Famous in Montreal in 2008, rejecting celebrity culture to focus purely on the fabric and construction.' },
       { id: 'soso',      fact: 'Founded in 2010 in Sweden by Jannis and Johan Blom — SOSO stands for South of Stockholm. They produce fully custom raw denim in Thailand.' },
