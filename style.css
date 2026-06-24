@@ -190,6 +190,189 @@ body::before {
   text-decoration: underline;
 }
 
+/* --- PUZZLE SCREEN --- */
+.puzzle-header {
+  text-align: center;
+  margin-bottom: 24px;
+  width: 100%;
+}
+
+.puzzle-count {
+  font-size: 0.75rem;
+  color: var(--grey);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin-bottom: 6px;
+}
+
+.puzzle-title {
+  font-family: var(--font-title);
+  font-size: 2rem;
+  color: var(--ecru);
+  text-shadow: 1px 1px 0px var(--copper);
+  margin-bottom: 10px;
+}
+
+.puzzle-instruction {
+  font-size: 0.85rem;
+  color: var(--ecru-dim);
+  line-height: 1.6;
+  margin-bottom: 10px;
+}
+
+.attempts-left {
+  font-size: 0.8rem;
+  color: var(--grey);
+  letter-spacing: 0.05em;
+}
+
+.attempts-left span {
+  color: var(--copper);
+  font-weight: 700;
+}
+
+/* --- CARDS --- */
+.card-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.card {
+  width: 100%;
+  background-image: url('images/fabric.jpg');
+  background-size: cover;
+  background-position: center;
+  border-radius: 10px;
+  padding: 16px 20px;
+  cursor: grab;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 2px solid transparent;
+  transition: border-color 0.2s ease, transform 0.1s ease;
+  position: relative;
+  overflow: hidden;
+  touch-action: none;
+  user-select: none;
+}
+
+/* Dark overlay on each card so text is readable over the fabric texture */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: rgba(26, 31, 60, 0.55);
+  border-radius: 8px;
+}
+
+.card-label, .card-sub {
+  position: relative;
+  z-index: 1;
+}
+
+.card-label {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  color: var(--ecru);
+  letter-spacing: 0.05em;
+}
+
+.card-sub {
+  font-size: 0.75rem;
+  color: var(--copper);
+  letter-spacing: 0.1em;
+}
+
+.card.correct {
+  border-color: var(--copper);
+}
+
+.card.incorrect {
+  border-color: var(--grey);
+}
+
+.card.dragging {
+  opacity: 0.4;
+  cursor: grabbing;
+}
+
+/* --- RESULTS / INFO CARD SCREEN --- */
+.results-header {
+  text-align: center;
+  margin-bottom: 20px;
+  width: 100%;
+}
+
+.results-outcome {
+  font-size: 0.9rem;
+  letter-spacing: 0.1em;
+  margin-top: 8px;
+}
+
+.results-outcome.won  { color: var(--copper); }
+.results-outcome.lost { color: var(--grey); }
+
+.facts-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.fact-card {
+  background-color: rgba(37, 43, 80, 0.6);
+  border-left: 3px solid var(--copper);
+  border-radius: 6px;
+  padding: 12px 16px;
+}
+
+.fact-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.fact-position {
+  font-family: var(--font-title);
+  font-size: 1.2rem;
+  color: var(--copper);
+  min-width: 20px;
+}
+
+.fact-label {
+  display: block;
+  font-family: var(--font-title);
+  font-size: 0.9rem;
+  color: var(--ecru);
+}
+
+.fact-sub {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--copper);
+  letter-spacing: 0.05em;
+}
+
+.fact-text {
+  font-size: 0.8rem;
+  color: var(--ecru-dim);
+  line-height: 1.6;
+}
+
+.results-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding-bottom: 20px;
+}
+
 /* --- CONGRATS SCREEN --- */
 .congrats-block {
   text-align: center;
