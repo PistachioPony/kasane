@@ -307,15 +307,16 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
 }
 
 function drawCardBase(ctx, W, H) {
-  // Cream/ecru background — feels like a physical denim hang tag
-  ctx.fillStyle = '#f5f0e8';
+  // Raw linen background — feels like a physical denim hang tag
+  ctx.fillStyle = '#d4cabb';
   ctx.fillRect(0, 0, W, H);
 
   ctx.strokeStyle = '#b87333';
   ctx.lineWidth = 10;
   ctx.strokeRect(40, 40, W - 80, H - 80);
 
-  ctx.strokeStyle = 'rgba(184,115,51,0.35)';
+  // Selvedge ID red for the inner border — a nod to the red selvedge stripe
+  ctx.strokeStyle = '#c0392b';
   ctx.lineWidth = 2;
   ctx.strokeRect(58, 58, W - 116, H - 116);
 
