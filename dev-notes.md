@@ -188,8 +188,29 @@ saveProgress(); // now saves the index of the puzzle they're about to play
 loadPuzzle(state.currentPuzzleIndex);
 ```
 
-### The lesson
+### The lesson (first attempt)
 
 Save state *after* all mutations are complete — not in the middle of a multi-step flow. Calling `saveProgress()` at the moment a result is recorded felt logical, but the index is a separate piece of state that updates later. The invariant to maintain: the saved `currentPuzzleIndex` should always be the next puzzle to play, not the one just finished.
+
+### The real fix (second iteration)
+
+Moving `saveProgress()` to the "Next Puzzle" button introduced a new gap: if you close the browser on the results screen (before tapping Next Puzzle), the index still points at the puzzle you just completed, so you have to replay it.
+
+The correct approach saves progress in `checkAnswer()` — the moment the result is known — but passes the *next* index explicitly rather than relying on state that hasn't been updated yet:
+
+```javascript
+// saveProgress accepts an optional override index
+function saveProgress(resumeIndex) {
+  localStorage.setItem('kasane_progress', JSON.stringify({
+    currentPuzzleIndex: resumeIndex !== undefined ? resumeIndex : state.currentPuzzleIndex,
+    results: state.results,
+  }));
+}
+
+// called in checkAnswer() right after results.push():
+saveProgress(state.currentPuzzleIndex + 1);
+```
+
+The "Next Puzzle" handler keeps its own `saveProgress()` call too as a safety net — redundant but harmless.
 
 ---

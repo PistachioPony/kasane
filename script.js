@@ -161,6 +161,7 @@ function checkAnswer() {
 
   if (isCorrect) {
     state.results.push({ puzzleId: puzzle.id, title: puzzle.title, attempts: 6 - state.attemptsLeft });
+    saveProgress(state.currentPuzzleIndex + 1);
 
     // Flash all cards copper and show a victory message
     cardEls.forEach(card => {
@@ -210,6 +211,7 @@ function checkAnswer() {
     // can see their final wrong attempt before the reveal.
     document.getElementById('attempts-count').textContent = '0 — see the answer below';
     state.results.push({ puzzleId: puzzle.id, title: puzzle.title, attempts: 5 });
+    saveProgress(state.currentPuzzleIndex + 1);
     setTimeout(() => showInfoCard(puzzle, playerOrder, false), 1500);
   } else {
     // Re-enable the button for the next attempt
@@ -312,9 +314,9 @@ function showInfoCard(puzzle, playerOrder, won) {
 // mid-puzzle progress (attempts, locked cards) is not restored.
 // --------------------------------
 
-function saveProgress() {
+function saveProgress(resumeIndex) {
   localStorage.setItem('kasane_progress', JSON.stringify({
-    currentPuzzleIndex: state.currentPuzzleIndex,
+    currentPuzzleIndex: resumeIndex !== undefined ? resumeIndex : state.currentPuzzleIndex,
     results: state.results,
   }));
 }
