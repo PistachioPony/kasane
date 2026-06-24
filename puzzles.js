@@ -79,8 +79,8 @@ const PUZZLES = [
     items: [
       { id: 'hank',      label: 'Hank Dyeing',               sub: 'The original hand method' },
       { id: 'synthetic', label: 'Synthetic Indigo',          sub: 'Industrial era' },
-      { id: 'rope',      label: 'Rope Dyeing',               sub: 'Yarn method' },
-      { id: 'slasher',   label: 'Slasher / Sheet Dyeing',    sub: 'Yarn method' },
+      { id: 'rope',      label: 'Rope Dyeing',               sub: 'Bundle dip method' },
+      { id: 'slasher',   label: 'Slasher / Sheet Dyeing',    sub: 'Continuous flat process' },
       { id: 'garment',   label: 'Garment Dyeing',            sub: 'Post-construction' },
       { id: 'foam',      label: 'Foam Dyeing',               sub: 'Sustainable era' },
     ],
