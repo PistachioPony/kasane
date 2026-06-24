@@ -175,8 +175,9 @@ function checkAnswer() {
     banner.textContent = '正解 · CORRECT!';
     document.getElementById('card-list').before(banner);
 
-    // Wait 1.5s so the player can enjoy the moment, then show info card
-    setTimeout(() => showInfoCard(puzzle, playerOrder, true), 1500);
+    // Last puzzle solved correctly → skip info card, go straight to congrats
+    const isLastPuzzle = state.currentPuzzleIndex === PUZZLES.length - 1;
+    setTimeout(() => isLastPuzzle ? showCongrats() : showInfoCard(puzzle, playerOrder, true), 1500);
     return;
   }
 
@@ -283,29 +284,30 @@ function showInfoCard(puzzle, playerOrder, won) {
   });
 
   document.getElementById('btn-next').addEventListener('click', () => {
-    if (state.currentPuzzleIndex < PUZZLES.length - 1) {
-      state.currentPuzzleIndex++;
-      saveProgress();
-      showScreen('puzzle');
-      loadPuzzle(state.currentPuzzleIndex);
-    } else {
-      const finalResults = [...state.results]; // snapshot before clearProgress resets state
-      clearProgress();
-      showScreen('congrats');
+    state.currentPuzzleIndex++;
+    saveProgress();
+    showScreen('puzzle');
+    loadPuzzle(state.currentPuzzleIndex);
+  });
+}
 
-      document.fonts.ready.then(() => {
-        const container = document.getElementById('final-card-container');
-        const canvas = document.createElement('canvas');
-        canvas.className = 'share-card-canvas';
-        drawFinalCard(canvas, finalResults);
-        const btn = document.createElement('button');
-        btn.className = 'btn-share';
-        btn.textContent = 'SHARE YOUR TITLE';
-        btn.addEventListener('click', () => shareCard(canvas, 'kasane-title.png'));
-        container.appendChild(canvas);
-        container.appendChild(btn);
-      });
-    }
+function showCongrats() {
+  const finalResults = [...state.results];
+  clearProgress();
+  showScreen('congrats');
+
+  document.fonts.ready.then(() => {
+    const container = document.getElementById('final-card-container');
+    container.innerHTML = '';
+    const canvas = document.createElement('canvas');
+    canvas.className = 'share-card-canvas';
+    drawFinalCard(canvas, finalResults);
+    const btn = document.createElement('button');
+    btn.className = 'btn-share';
+    btn.textContent = 'SHARE YOUR TITLE';
+    btn.addEventListener('click', () => shareCard(canvas, 'kasane-title.png'));
+    container.appendChild(canvas);
+    container.appendChild(btn);
   });
 }
 
