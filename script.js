@@ -206,6 +206,12 @@ function showInfoCard(puzzle, playerOrder, won) {
       </p>
     </div>
 
+    <div class="share-section">
+      <p class="share-label">Share your result</p>
+      <canvas id="puzzle-share-canvas" class="share-card-canvas"></canvas>
+      <button id="btn-share-puzzle" class="btn-share">SHARE / SAVE IMAGE</button>
+    </div>
+
     <div class="facts-list">
       ${correctOrder.map((id, i) => {
         const item = puzzle.items.find(item => item.id === id);
@@ -223,12 +229,6 @@ function showInfoCard(puzzle, playerOrder, won) {
           </div>
         `;
       }).join('')}
-    </div>
-
-    <div class="share-section">
-      <p class="share-label">Share your result</p>
-      <canvas id="puzzle-share-canvas" class="share-card-canvas"></canvas>
-      <button id="btn-share-puzzle" class="btn-share">SHARE / SAVE IMAGE</button>
     </div>
 
     <div class="results-actions">
@@ -307,18 +307,20 @@ function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
 }
 
 function drawCardBase(ctx, W, H) {
-  ctx.fillStyle = '#1a1f3c';
+  // Cream/ecru background — feels like a physical denim hang tag
+  ctx.fillStyle = '#f5f0e8';
   ctx.fillRect(0, 0, W, H);
 
   ctx.strokeStyle = '#b87333';
   ctx.lineWidth = 10;
   ctx.strokeRect(40, 40, W - 80, H - 80);
 
-  ctx.strokeStyle = 'rgba(184,115,51,0.25)';
+  ctx.strokeStyle = 'rgba(184,115,51,0.35)';
   ctx.lineWidth = 2;
   ctx.strokeRect(58, 58, W - 116, H - 116);
 
-  ctx.fillStyle = '#f5f0e8';
+  // KASANE in dark indigo on cream
+  ctx.fillStyle = '#1a1f3c';
   ctx.font = 'normal 108px "Alfa Slab One"';
   ctx.textAlign = 'center';
   ctx.shadowColor = '#b87333';
@@ -346,8 +348,9 @@ function drawCardBase(ctx, W, H) {
   ctx.lineTo(920, 928);
   ctx.stroke();
 
-  ctx.fillStyle = '#555e7a';
-  ctx.font = '300 26px "Noto Sans JP"';
+  // URL — larger and darker so it reads clearly on the cream background
+  ctx.fillStyle = '#1a1f3c';
+  ctx.font = '300 38px "Noto Sans JP"';
   ctx.fillText('pistachiopony.github.io/kasane', W / 2, 984);
 }
 
@@ -364,7 +367,8 @@ function drawPuzzleCard(canvas, puzzle, puzzleIndex, attemptsUsed, won) {
   ctx.textAlign = 'center';
   ctx.fillText(`PUZZLE ${puzzleIndex + 1} OF ${PUZZLES.length}`, W / 2, 390);
 
-  ctx.fillStyle = '#f5f0e8';
+  // Puzzle title in dark indigo (readable on cream)
+  ctx.fillStyle = '#1a1f3c';
   ctx.font = 'normal 70px "Alfa Slab One"';
   wrapText(ctx, puzzle.title.toUpperCase(), W / 2, 490, 880, 84);
 
@@ -379,8 +383,8 @@ function drawPuzzleCard(canvas, puzzle, puzzleIndex, attemptsUsed, won) {
   ctx.fillText(resultText, W / 2, 630);
 
   if (puzzleIndex < PUZZLES.length - 1) {
-    ctx.fillStyle = '#c8bfb0';
-    ctx.font = '300 30px "Noto Sans JP"';
+    ctx.fillStyle = '#555e7a';
+    ctx.font = '300 44px "Noto Sans JP"';
     ctx.fillText('Complete all 5 to earn your denim title →', W / 2, 790);
   }
 }
@@ -412,8 +416,8 @@ function drawFinalCard(canvas, results) {
   ctx.fillText(title, W / 2, 540);
   ctx.shadowColor = 'transparent';
 
-  ctx.fillStyle = '#c8bfb0';
-  ctx.font = '300 30px "Noto Sans JP"';
+  ctx.fillStyle = '#555e7a';
+  ctx.font = '300 36px "Noto Sans JP"';
   const scoreText = firstTries === 5
     ? 'All 5 puzzles solved on the first try'
     : `${total} total attempts · ${firstTries} first-try solve${firstTries !== 1 ? 's' : ''}`;
