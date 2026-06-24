@@ -50,8 +50,21 @@ function showScreen(name) {
 // "click on btnStart → run this function".
 // --------------------------------
 btnStart.addEventListener('click', () => {
+  const saved = localStorage.getItem('kasane_progress');
+  if (saved) {
+    const { currentPuzzleIndex, results } = JSON.parse(saved);
+    state.currentPuzzleIndex = currentPuzzleIndex;
+    state.results = results;
+  }
   showScreen('puzzle');
   loadPuzzle(state.currentPuzzleIndex);
+});
+
+document.getElementById('btn-play-again').addEventListener('click', () => {
+  clearProgress();
+  btnStart.textContent = 'START';
+  document.querySelector('.btn-start-over')?.remove();
+  showScreen('title');
 });
 
 // --------------------------------
@@ -148,6 +161,7 @@ function checkAnswer() {
 
   if (isCorrect) {
     state.results.push({ puzzleId: puzzle.id, title: puzzle.title, attempts: 6 - state.attemptsLeft });
+    saveProgress();
 
     // Flash all cards copper and show a victory message
     cardEls.forEach(card => {
@@ -197,6 +211,7 @@ function checkAnswer() {
     // can see their final wrong attempt before the reveal.
     document.getElementById('attempts-count').textContent = '0 — see the answer below';
     state.results.push({ puzzleId: puzzle.id, title: puzzle.title, attempts: 5 });
+    saveProgress();
     setTimeout(() => showInfoCard(puzzle, playerOrder, false), 1500);
   } else {
     // Re-enable the button for the next attempt
@@ -273,6 +288,7 @@ function showInfoCard(puzzle, playerOrder, won) {
       showScreen('puzzle');
       loadPuzzle(state.currentPuzzleIndex);
     } else {
+      clearProgress();
       showScreen('congrats');
       document.fonts.ready.then(() => {
         const container = document.getElementById('final-card-container');
@@ -291,7 +307,51 @@ function showInfoCard(puzzle, playerOrder, won) {
 }
 
 // --------------------------------
-// 10. SHARE CARDS
+// 10. LOCAL STORAGE
+// Saves progress between sessions so players can close the browser
+// and return to where they left off. Only saves between-puzzle state —
+// mid-puzzle progress (attempts, locked cards) is not restored.
+// --------------------------------
+
+function saveProgress() {
+  localStorage.setItem('kasane_progress', JSON.stringify({
+    currentPuzzleIndex: state.currentPuzzleIndex,
+    results: state.results,
+  }));
+}
+
+function clearProgress() {
+  localStorage.removeItem('kasane_progress');
+  state.currentPuzzleIndex = 0;
+  state.results = [];
+}
+
+function initProgress() {
+  const saved = localStorage.getItem('kasane_progress');
+  if (!saved) return;
+  const { currentPuzzleIndex, results } = JSON.parse(saved);
+  if (!currentPuzzleIndex && !results.length) return;
+
+  // Update the start button to show where they left off
+  btnStart.textContent = `CONTINUE → PUZZLE ${currentPuzzleIndex + 1}`;
+
+  // Add a small "start over" option below
+  const startOver = document.createElement('button');
+  startOver.className = 'btn-start-over';
+  startOver.textContent = 'Start over';
+  startOver.addEventListener('click', () => {
+    clearProgress();
+    btnStart.textContent = 'START';
+    startOver.remove();
+  });
+  btnStart.after(startOver);
+}
+
+// Run on page load
+initProgress();
+
+// --------------------------------
+// 11. SHARE CARDS
 // Two canvas-based share cards: one per puzzle, one final title card.
 // Canvas lets us generate a real image (1080×1080px) that players
 // can save and post to Instagram — like Wordle cards but more visual.

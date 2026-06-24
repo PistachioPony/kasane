@@ -527,3 +527,43 @@ body::before {
 .follow-text strong {
   color: var(--copper);
 }
+
+/* PLAY AGAIN button on congrats screen */
+.btn-play-again {
+  font-family: var(--font-title);
+  font-size: 0.85rem;
+  letter-spacing: 0.15em;
+  color: var(--copper);
+  background: transparent;
+  border: 2px solid var(--copper);
+  border-radius: 6px;
+  padding: 10px 32px;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.btn-play-again:hover {
+  background-color: var(--copper);
+  color: var(--indigo);
+}
+
+/* START OVER link below CONTINUE button on title screen */
+.btn-start-over {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--ecru-dim);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-decoration: underline;
+  margin-top: 4px;
+  padding: 4px 8px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.btn-start-over:hover {
+  opacity: 1;
+}
