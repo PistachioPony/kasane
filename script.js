@@ -2,7 +2,7 @@
 // KASANE — script.js
 // ================================
 
-// PUZZLES data lives in puzzles.js — loaded before this file in index.html
+// THEMES data lives in puzzles.js — loaded before this file in index.html
 
 // --------------------------------
 // 1. GAME STATE
@@ -11,13 +11,28 @@
 // or a Python class attribute — a single source of truth.
 // --------------------------------
 const state = {
-  currentPuzzleIndex: 0,   // which puzzle we're on (0–4)
+  currentThemeId: null,    // which theme pack is active ('denim', 'boots', ...)
+  currentPuzzleIndex: 0,   // which puzzle we're on within that theme
   attemptsLeft: 5,          // attempts remaining for current puzzle
   currentOrder: [],         // the player's current card arrangement (array of ids)
   results: [],              // stores result of each completed puzzle for share card
   lockedItemIds: [],        // ids of cards locked in correct position
   hasShownPreviewScroll: false, // whether the onboarding scroll-to-bottom has already played this session
 };
+
+// --------------------------------
+// 2. THEME HELPERS
+// THEMES is defined in puzzles.js. These two helpers mean every other
+// function can ask "what puzzles am I working with right now" without
+// caring which theme is active.
+// --------------------------------
+function currentTheme() {
+  return THEMES[state.currentThemeId];
+}
+
+function currentPuzzles() {
+  return currentTheme().puzzles;
+}
 
 // --------------------------------
 // 3. DOM REFERENCES
@@ -32,8 +47,6 @@ const screens = {
   congrats: document.getElementById('screen-congrats'),
 };
 
-const btnStart = document.getElementById('btn-start');
-
 // --------------------------------
 // 4. SCREEN NAVIGATION
 // showScreen() hides all screens then shows just the one we want.
@@ -45,27 +58,60 @@ function showScreen(name) {
 }
 
 // --------------------------------
-// 5. EVENT LISTENERS
-// This is the JS equivalent of Rails routes — instead of
-// "GET /start → controller#action", we say
-// "click on btnStart → run this function".
+// 5. THEME PICKER (title screen)
+// Renders one tappable card per theme in THEMES, showing saved progress
+// if there is any. Tapping a card enters that theme at the right spot.
 // --------------------------------
-btnStart.addEventListener('click', () => {
-  const saved = localStorage.getItem('kasane_progress');
-  if (saved) {
-    const { currentPuzzleIndex, results } = JSON.parse(saved);
-    state.currentPuzzleIndex = currentPuzzleIndex;
-    state.results = results;
-  }
-  showScreen('puzzle');
-  loadPuzzle(state.currentPuzzleIndex);
-});
+function renderThemeList() {
+  const container = document.getElementById('theme-list');
+
+  container.innerHTML = Object.values(THEMES).map(theme => {
+    const saved = getSavedProgress(theme.id);
+    const statusText = saved
+      ? `Continue → Puzzle ${saved.currentPuzzleIndex + 1}`
+      : `${theme.puzzles.length} puzzles`;
+
+    return `
+      <div class="theme-entry">
+        <div class="card theme-card" data-theme-id="${theme.id}">
+          <div class="card-content">
+            <span class="card-label">${theme.name}</span>
+            <span class="card-sub">${statusText}</span>
+          </div>
+        </div>
+        ${saved ? `<button class="btn-start-over" data-theme-id="${theme.id}">Start over</button>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  container.querySelectorAll('.theme-card').forEach(card => {
+    card.addEventListener('click', () => {
+      const themeId = card.dataset.themeId;
+      const saved = getSavedProgress(themeId);
+      state.currentThemeId = themeId;
+      if (saved) {
+        state.currentPuzzleIndex = saved.currentPuzzleIndex;
+        state.results = saved.results;
+      } else {
+        state.currentPuzzleIndex = 0;
+        state.results = [];
+      }
+      showScreen('puzzle');
+      loadPuzzle(state.currentPuzzleIndex);
+    });
+  });
+
+  container.querySelectorAll('.btn-start-over').forEach(btn => {
+    btn.addEventListener('click', () => {
+      localStorage.removeItem(progressKey(btn.dataset.themeId));
+      renderThemeList();
+    });
+  });
+}
 
 document.getElementById('btn-play-again').addEventListener('click', () => {
-  clearProgress();
-  btnStart.textContent = 'START';
-  document.querySelector('.btn-start-over')?.remove();
   showScreen('title');
+  renderThemeList();
 });
 
 // --------------------------------
@@ -75,7 +121,7 @@ document.getElementById('btn-play-again').addEventListener('click', () => {
 // like an ERB partial, but generated in the browser at runtime.
 // --------------------------------
 function loadPuzzle(index) {
-  const puzzle = PUZZLES[index];
+  const puzzle = currentPuzzles()[index];
 
   // Shuffle the items so they don't start in the correct order.
   // slice() makes a copy first — we never mutate the original data.
@@ -87,7 +133,7 @@ function loadPuzzle(index) {
   // like Ruby's "#{}" but more powerful since you can write multi-line HTML.
   screens.puzzle.innerHTML = `
     <div class="puzzle-header">
-      <p class="puzzle-count">Puzzle ${index + 1} of ${PUZZLES.length}</p>
+      <p class="puzzle-count">Puzzle ${index + 1} of ${currentPuzzles().length}</p>
       <h2 class="puzzle-title">${puzzle.title}</h2>
       <p class="puzzle-instruction">${puzzle.instruction}</p>
       <p class="attempts-left">Attempts left: <span id="attempts-count">${state.attemptsLeft}</span></p>
@@ -154,8 +200,8 @@ function shuffle(array) {
 // Compares the player's current card order against the correct order.
 // --------------------------------
 function checkAnswer() {
-  const puzzle = PUZZLES[state.currentPuzzleIndex];
-  const cardEls = document.querySelectorAll('.card');
+  const puzzle = currentPuzzles()[state.currentPuzzleIndex];
+  const cardEls = document.querySelectorAll('#card-list .card');
   const submitBtn = document.getElementById('btn-submit');
 
   // Disable submit immediately to prevent double-tapping
@@ -181,7 +227,7 @@ function checkAnswer() {
     document.getElementById('card-list').before(banner);
 
     // Last puzzle solved correctly → skip info card, go straight to congrats
-    const isLastPuzzle = state.currentPuzzleIndex === PUZZLES.length - 1;
+    const isLastPuzzle = state.currentPuzzleIndex === currentPuzzles().length - 1;
     setTimeout(() => isLastPuzzle ? showCongrats() : showInfoCard(puzzle, true), 1500);
     return;
   }
@@ -235,7 +281,7 @@ function showInfoCard(puzzle, won) {
 
   screens.results.innerHTML = `
     <div class="results-header">
-      <p class="puzzle-count">Puzzle ${state.currentPuzzleIndex + 1} of ${PUZZLES.length}</p>
+      <p class="puzzle-count">Puzzle ${state.currentPuzzleIndex + 1} of ${currentPuzzles().length}</p>
       <h2 class="puzzle-title">${puzzle.title}</h2>
       <p class="results-outcome ${won ? 'won' : 'lost'}">
         ${won ? '✓ Correct!' : 'The correct order was:'}
@@ -261,11 +307,11 @@ function showInfoCard(puzzle, won) {
       }).join('')}
     </div>
 
-    <p class="sources-line">Facts sourced from Heddels, Denimhunters, Long John, Levi Strauss &amp; Co., BASF and Iron Heart.</p>
+    <p class="sources-line">${currentTheme().sourcesLine}</p>
 
     <div class="submit-bar">
       <button id="btn-next" class="btn-primary">
-        ${state.currentPuzzleIndex < PUZZLES.length - 1 ? 'NEXT PUZZLE →' : 'FINISH'}
+        ${state.currentPuzzleIndex < currentPuzzles().length - 1 ? 'NEXT PUZZLE →' : 'FINISH'}
       </button>
     </div>
   `;
@@ -275,7 +321,7 @@ function showInfoCard(puzzle, won) {
   document.getElementById('btn-next').addEventListener('click', () => {
     // Last puzzle (won or not) → go to congrats instead of loading a
     // puzzle index that doesn't exist.
-    if (state.currentPuzzleIndex === PUZZLES.length - 1) {
+    if (state.currentPuzzleIndex === currentPuzzles().length - 1) {
       showCongrats();
       return;
     }
@@ -288,6 +334,7 @@ function showInfoCard(puzzle, won) {
 
 function showCongrats() {
   const finalResults = [...state.results];
+  const finishedThemeId = state.currentThemeId;
   clearProgress();
   showScreen('congrats');
 
@@ -296,7 +343,7 @@ function showCongrats() {
     container.innerHTML = '';
     const canvas = document.createElement('canvas');
     canvas.className = 'share-card-canvas';
-    drawFinalCard(canvas, finalResults);
+    drawFinalCard(canvas, THEMES[finishedThemeId], finalResults);
     const btn = document.createElement('button');
     btn.className = 'btn-share';
     btn.textContent = 'SHARE YOUR TITLE';
@@ -311,44 +358,39 @@ function showCongrats() {
 // Saves progress between sessions so players can close the browser
 // and return to where they left off. Only saves between-puzzle state —
 // mid-puzzle progress (attempts, locked cards) is not restored.
+// Each theme gets its own key so finishing/resuming one theme never
+// touches another theme's saved progress.
 // --------------------------------
 
+function progressKey(themeId) {
+  return `kasane_progress_${themeId}`;
+}
+
 function saveProgress(resumeIndex) {
-  localStorage.setItem('kasane_progress', JSON.stringify({
+  localStorage.setItem(progressKey(state.currentThemeId), JSON.stringify({
     currentPuzzleIndex: resumeIndex !== undefined ? resumeIndex : state.currentPuzzleIndex,
     results: state.results,
   }));
 }
 
 function clearProgress() {
-  localStorage.removeItem('kasane_progress');
+  localStorage.removeItem(progressKey(state.currentThemeId));
   state.currentPuzzleIndex = 0;
   state.results = [];
 }
 
-function initProgress() {
-  const saved = localStorage.getItem('kasane_progress');
-  if (!saved) return;
-  const { currentPuzzleIndex, results } = JSON.parse(saved);
-  if (!currentPuzzleIndex && !results.length) return;
-
-  // Update the start button to show where they left off
-  btnStart.textContent = `CONTINUE → PUZZLE ${currentPuzzleIndex + 1}`;
-
-  // Add a small "start over" option below
-  const startOver = document.createElement('button');
-  startOver.className = 'btn-start-over';
-  startOver.textContent = 'Start over';
-  startOver.addEventListener('click', () => {
-    clearProgress();
-    btnStart.textContent = 'START';
-    startOver.remove();
-  });
-  btnStart.after(startOver);
+// Returns { currentPuzzleIndex, results } for a theme if there's real
+// in-progress saved state, otherwise null.
+function getSavedProgress(themeId) {
+  const saved = localStorage.getItem(progressKey(themeId));
+  if (!saved) return null;
+  const parsed = JSON.parse(saved);
+  if (!parsed.currentPuzzleIndex && !parsed.results.length) return null;
+  return parsed;
 }
 
 // Run on page load
-initProgress();
+renderThemeList();
 
 // --------------------------------
 // 11. SHARE CARDS
@@ -357,20 +399,19 @@ initProgress();
 // can save and post to Instagram — like Wordle cards but more visual.
 // --------------------------------
 
-function calculateTitle(results) {
+// Score → tier is theme-agnostic (based purely on results.length and total
+// attempts). The tier's display name/color/emoji comes from whichever
+// theme's titleTiers is passed in — see drawFinalCard.
+function calculateTierKey(results) {
   const total = results.reduce((sum, r) => sum + r.attempts, 0);
-  if (total === results.length)      return 'IRON HEART';
-  if (total <= results.length + 3)   return 'SAMURAI';
-  if (total <= results.length + 7)   return 'DENIM HEAD';
-  return 'RAW RECRUIT';
+  // Top tier allows one missed first-try guess rather than requiring literal
+  // perfection — partly because a few of this pack's "correct" answers are
+  // themselves best-guesses, so one near-miss shouldn't lock someone out.
+  if (total <= results.length + 1)   return 'top';
+  if (total <= results.length + 3)   return 'second';
+  if (total <= results.length + 7)   return 'third';
+  return 'bottom';
 }
-
-const TITLE_META = {
-  'IRON HEART':  { cardColor: '#c0392b', emoji: '🏆' },
-  'SAMURAI':     { cardColor: '#1a3a5c', emoji: '⚔️' },
-  'DENIM HEAD':  { cardColor: '#d4812a', emoji: '🧵' },
-  'RAW RECRUIT': { cardColor: '#a0522d', emoji: '🪡' },
-};
 
 function drawCardBase(ctx, W, H) {
   // Ecru background — feels like a physical denim hang tag
@@ -421,7 +462,7 @@ function drawCardBase(ctx, W, H) {
   ctx.fillText('pistachiopony.github.io/kasane', W / 2, 984);
 }
 
-function drawFinalCard(canvas, results) {
+function drawFinalCard(canvas, theme, results) {
   const W = 1080, H = 1080;
   canvas.width = W;
   canvas.height = H;
@@ -429,35 +470,34 @@ function drawFinalCard(canvas, results) {
 
   drawCardBase(ctx, W, H);
 
-  const title = calculateTitle(results);
+  const tier = theme.titleTiers[calculateTierKey(results)];
   const total = results.reduce((sum, r) => sum + r.attempts, 0);
   const firstTries = results.filter(r => r.attempts === 1).length;
 
   ctx.fillStyle = '#555e7a';
   ctx.font = '300 32px "Noto Sans JP"';
   ctx.textAlign = 'center';
-  ctx.fillText('YOUR DENIM TITLE', W / 2, 400);
+  ctx.fillText(theme.titleLabel, W / 2, 400);
 
-  const titleSize = title.length > 10 ? 96 : 116;
-  const cardColor = TITLE_META[title].cardColor;
-  ctx.fillStyle = cardColor;
-  ctx.shadowColor = cardColor + '80';
+  const titleSize = tier.name.length > 10 ? 96 : 116;
+  ctx.fillStyle = tier.cardColor;
+  ctx.shadowColor = tier.cardColor + '80';
   ctx.shadowOffsetX = 6;
   ctx.shadowOffsetY = 6;
   ctx.shadowBlur = 0;
   ctx.font = `normal ${titleSize}px "Alfa Slab One"`;
-  ctx.fillText(title, W / 2, 540);
+  ctx.fillText(tier.name, W / 2, 540);
   ctx.shadowColor = 'transparent';
 
   ctx.fillStyle = '#555e7a';
   ctx.font = '300 36px "Noto Sans JP"';
-  const scoreText = firstTries === 5
-    ? 'All 5 puzzles solved on the first try'
+  const scoreText = firstTries === results.length
+    ? `All ${results.length} puzzles solved on the first try`
     : `${total} total attempts · ${firstTries} first-try solve${firstTries !== 1 ? 's' : ''}`;
   ctx.fillText(scoreText, W / 2, 660);
 
   ctx.font = '120px sans-serif';
-  ctx.fillText(TITLE_META[title].emoji, W / 2, 820);
+  ctx.fillText(tier.emoji, W / 2, 820);
 }
 
 async function shareCard(canvas, filename) {
@@ -498,7 +538,7 @@ async function shareCard(canvas, filename) {
 // --------------------------------
 function enforceLockedPositions(cardList) {
   if (state.lockedItemIds.length === 0) return;
-  const puzzle = PUZZLES[state.currentPuzzleIndex];
+  const puzzle = currentPuzzles()[state.currentPuzzleIndex];
   const cards = Array.from(cardList.querySelectorAll('.card'));
 
   state.lockedItemIds.forEach(lockedId => {

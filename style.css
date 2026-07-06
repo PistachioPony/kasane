@@ -155,6 +155,33 @@ body::before {
   line-height: 1.6;
 }
 
+/* --- THEME PICKER (title screen) ---
+   Reuses the same fabric-textured .card look as puzzle cards —
+   deliberately no new colors/textures per theme. */
+.theme-list {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.theme-entry {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.theme-card {
+  width: 100%;
+  cursor: pointer;
+}
+
+.theme-card:active {
+  transform: scale(0.97);
+}
+
 /* --- BUTTONS --- */
 .btn-primary {
   font-family: var(--font-title);
