@@ -273,6 +273,12 @@ function showInfoCard(puzzle, won) {
   showScreen('results');
 
   document.getElementById('btn-next').addEventListener('click', () => {
+    // Last puzzle (won or not) → go to congrats instead of loading a
+    // puzzle index that doesn't exist.
+    if (state.currentPuzzleIndex === PUZZLES.length - 1) {
+      showCongrats();
+      return;
+    }
     state.currentPuzzleIndex++;
     saveProgress();
     showScreen('puzzle');
