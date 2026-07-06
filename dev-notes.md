@@ -158,7 +158,39 @@ On mobile, "below the fold" means invisible — not just inconvenient. Critical 
 
 ---
 
-## Bug 5: Submit button flashes ecru when tapped
+## Bug 5: GitHub Pages CDN serves stale files after a push
+
+**File:** `index.html`
+**Status:** Fixed
+**Date:** June 2026
+
+### What was happening
+
+After pushing new CSS and JS, the live site at `pistachiopony.github.io/kasane` continued showing old behaviour — the submit button disabled state was wrong and the sticky Next Puzzle button wasn't appearing. Hard refreshing the page didn't help.
+
+### Root cause
+
+GitHub Pages serves files through a CDN (content delivery network) which caches assets aggressively. Even after a successful `git push`, the CDN can keep serving old versions of `style.css` and `script.js` for several minutes or longer. The browser also has its own cache on top of that.
+
+### The fix
+
+Add a version query string to all asset URLs in `index.html`:
+
+```html
+<link rel="stylesheet" href="style.css?v=2" />
+<script src="puzzles.js?v=2"></script>
+<script src="script.js?v=2"></script>
+```
+
+The browser treats `style.css?v=2` as a completely different URL from `style.css`, so it fetches a fresh copy and ignores the cache. Increment the version number (`?v=3`, `?v=4`, etc.) any time you need to force a fresh fetch after a push.
+
+### The lesson
+
+CDN caching is invisible until it bites you. When a live site doesn't reflect a recent push, the first suspect is always cache — not the code. Version query strings (`?v=N`) are the simplest cache-busting technique for static sites without a build step.
+
+---
+
+## Bug 6: Submit button flashes ecru when tapped
 
 **File:** `style.css`
 **Status:** Fixed
