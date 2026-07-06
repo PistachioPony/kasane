@@ -16,6 +16,7 @@ const state = {
   currentOrder: [],         // the player's current card arrangement (array of ids)
   results: [],              // stores result of each completed puzzle for share card
   lockedItemIds: [],        // ids of cards locked in correct position
+  hasShownPreviewScroll: false, // whether the onboarding scroll-to-bottom has already played this session
 };
 
 // --------------------------------
@@ -122,12 +123,16 @@ function loadPuzzle(index) {
 
   // Preview scroll — briefly scroll down to show all cards and the submit
   // button exist, then return to top. Lets the player know what they're working with.
-  setTimeout(() => {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  // Only needed once per session — by the second puzzle they already know the pattern.
+  if (!state.hasShownPreviewScroll) {
+    state.hasShownPreviewScroll = true;
     setTimeout(() => {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }, 900);
-  }, 500);
+      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+      setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }, 900);
+    }, 500);
+  }
 }
 
 // --------------------------------
@@ -177,7 +182,7 @@ function checkAnswer() {
 
     // Last puzzle solved correctly → skip info card, go straight to congrats
     const isLastPuzzle = state.currentPuzzleIndex === PUZZLES.length - 1;
-    setTimeout(() => isLastPuzzle ? showCongrats() : showInfoCard(puzzle, playerOrder, true), 1500);
+    setTimeout(() => isLastPuzzle ? showCongrats() : showInfoCard(puzzle, true), 1500);
     return;
   }
 
@@ -213,7 +218,7 @@ function checkAnswer() {
     document.getElementById('attempts-count').textContent = '0 — see the answer below';
     state.results.push({ puzzleId: puzzle.id, title: puzzle.title, attempts: 5 });
     saveProgress(state.currentPuzzleIndex + 1);
-    setTimeout(() => showInfoCard(puzzle, playerOrder, false), 1500);
+    setTimeout(() => showInfoCard(puzzle, false), 1500);
   } else {
     // Re-enable the button for the next attempt
     submitBtn.disabled = false;
@@ -223,9 +228,9 @@ function checkAnswer() {
 // --------------------------------
 // 9. SHOW INFO CARD
 // Displayed after each puzzle — correct order revealed,
-// fun facts shown, share card and next puzzle button.
+// fun facts shown, and a next puzzle button.
 // --------------------------------
-function showInfoCard(puzzle, playerOrder, won) {
+function showInfoCard(puzzle, won) {
   const correctOrder = puzzle.correctOrder;
 
   screens.results.innerHTML = `
@@ -235,12 +240,6 @@ function showInfoCard(puzzle, playerOrder, won) {
       <p class="results-outcome ${won ? 'won' : 'lost'}">
         ${won ? '✓ Correct!' : 'The correct order was:'}
       </p>
-    </div>
-
-    <div class="share-section">
-      <p class="share-label">Share your result</p>
-      <canvas id="puzzle-share-canvas" class="share-card-canvas"></canvas>
-      <button id="btn-share-puzzle" class="btn-share">SHARE / SAVE IMAGE</button>
     </div>
 
     <div class="facts-list">
@@ -272,16 +271,6 @@ function showInfoCard(puzzle, playerOrder, won) {
   `;
 
   showScreen('results');
-
-  // Draw the share card once fonts are ready, then wire up the share button
-  const attemptsUsed = state.results[state.results.length - 1].attempts;
-  document.fonts.ready.then(() => {
-    const canvas = document.getElementById('puzzle-share-canvas');
-    drawPuzzleCard(canvas, puzzle, state.currentPuzzleIndex, attemptsUsed, won);
-    document.getElementById('btn-share-puzzle').addEventListener('click', () => {
-      shareCard(canvas, `kasane-puzzle-${state.currentPuzzleIndex + 1}.png`);
-    });
-  });
 
   document.getElementById('btn-next').addEventListener('click', () => {
     state.currentPuzzleIndex++;
@@ -377,24 +366,6 @@ const TITLE_META = {
   'RAW RECRUIT': { cardColor: '#a0522d', emoji: '🪡' },
 };
 
-// Wraps long text across multiple lines on a canvas context
-function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
-  const words = text.split(' ');
-  let line = '';
-  let currentY = y;
-  for (let i = 0; i < words.length; i++) {
-    const testLine = line + words[i] + ' ';
-    if (ctx.measureText(testLine).width > maxWidth && i > 0) {
-      ctx.fillText(line.trim(), x, currentY);
-      line = words[i] + ' ';
-      currentY += lineHeight;
-    } else {
-      line = testLine;
-    }
-  }
-  ctx.fillText(line.trim(), x, currentY);
-}
-
 function drawCardBase(ctx, W, H) {
   // Ecru background — feels like a physical denim hang tag
   ctx.fillStyle = '#f5f0e8';
@@ -442,41 +413,6 @@ function drawCardBase(ctx, W, H) {
   ctx.fillStyle = '#1a1f3c';
   ctx.font = '300 38px "Noto Sans JP"';
   ctx.fillText('pistachiopony.github.io/kasane', W / 2, 984);
-}
-
-function drawPuzzleCard(canvas, puzzle, puzzleIndex, attemptsUsed, won) {
-  const W = 1080, H = 1080;
-  canvas.width = W;
-  canvas.height = H;
-  const ctx = canvas.getContext('2d');
-
-  drawCardBase(ctx, W, H);
-
-  ctx.fillStyle = '#555e7a';
-  ctx.font = '300 30px "Noto Sans JP"';
-  ctx.textAlign = 'center';
-  ctx.fillText(`PUZZLE ${puzzleIndex + 1} OF ${PUZZLES.length}`, W / 2, 390);
-
-  // Puzzle title in dark indigo (readable on cream)
-  ctx.fillStyle = '#1a1f3c';
-  ctx.font = 'normal 70px "Alfa Slab One"';
-  wrapText(ctx, puzzle.title.toUpperCase(), W / 2, 490, 880, 84);
-
-  const resultText = !won
-    ? 'ANSWER REVEALED'
-    : attemptsUsed === 1
-      ? 'SOLVED FIRST TRY'
-      : `SOLVED IN ${attemptsUsed} ATTEMPTS`;
-
-  ctx.fillStyle = won ? '#b87333' : '#555e7a';
-  ctx.font = 'normal 58px "Alfa Slab One"';
-  ctx.fillText(resultText, W / 2, 630);
-
-  if (puzzleIndex < PUZZLES.length - 1) {
-    ctx.fillStyle = '#555e7a';
-    ctx.font = '300 44px "Noto Sans JP"';
-    ctx.fillText('Complete all 5 to earn your denim title →', W / 2, 790);
-  }
 }
 
 function drawFinalCard(canvas, results) {

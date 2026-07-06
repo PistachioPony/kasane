@@ -479,13 +479,6 @@ body::before {
   border-bottom: 1px solid rgba(184, 115, 51, 0.25);
 }
 
-.share-label {
-  font-size: 0.7rem;
-  color: var(--ecru);
-  letter-spacing: 0.2em;
-  text-transform: uppercase;
-}
-
 .share-card-canvas {
   width: 100%;
   max-width: 340px;
