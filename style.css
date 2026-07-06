@@ -348,8 +348,19 @@ body::before {
 }
 
 .card.dragging {
-  opacity: 0.4;
   cursor: grabbing;
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.45), 0 4px 10px rgba(0, 0, 0, 0.3);
+  transform: scale(1.045) rotate(-1.4deg);
+}
+
+.card-placeholder {
+  border: 2px dashed rgba(245, 240, 232, 0.28);
+  background: rgba(245, 240, 232, 0.04);
+}
+
+/* Suppress the dark fabric overlay so the dashed placeholder reads as empty */
+.card-placeholder::before {
+  content: none;
 }
 
 .card[data-locked="true"] {

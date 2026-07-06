@@ -590,10 +590,13 @@ function enforceLockedPositions(cardList) {
 function initDragAndDrop() {
   const cardList = document.getElementById('card-list');
 
-  let draggedCard = null;   // the card actively being dragged
+  let draggedCard = null;   // the real card element, floating and following the pointer
   let pendingCard  = null;  // card where pointerdown fired, not yet confirmed as a drag
+  let placeholder  = null;  // dashed stand-in left in draggedCard's spot in the list
   let startX = 0;
   let startY = 0;
+  let grabOffsetX = 0; // where inside the card the pointer grabbed it, so it doesn't jump
+  let grabOffsetY = 0;
 
   // DRAG THRESHOLD: how many pixels the pointer must move before
   // we consider it a drag (vs a tap/click). 8px is a standard value.
@@ -605,6 +608,34 @@ function initDragAndDrop() {
     pendingCard = card;
     startX = e.clientX;
     startY = e.clientY;
+  }
+
+  // Lifts the card out of the document flow so it can float and follow the
+  // pointer. A placeholder takes its place in the list — everything that
+  // reads card order (enforceLockedPositions, checkAnswer) still sees a
+  // '.card' with the right data-id sitting in that slot.
+  function beginDrag() {
+    draggedCard = pendingCard;
+    pendingCard = null;
+
+    const rect = draggedCard.getBoundingClientRect();
+    grabOffsetX = startX - rect.left;
+    grabOffsetY = startY - rect.top;
+
+    placeholder = document.createElement('div');
+    placeholder.className = 'card card-placeholder';
+    placeholder.dataset.id = draggedCard.dataset.id;
+    placeholder.style.height = rect.height + 'px';
+    draggedCard.replaceWith(placeholder);
+    document.body.appendChild(draggedCard);
+
+    draggedCard.style.position = 'fixed';
+    draggedCard.style.width = rect.width + 'px';
+    draggedCard.style.left = rect.left + 'px';
+    draggedCard.style.top = rect.top + 'px';
+    draggedCard.style.zIndex = 1000;
+    draggedCard.style.pointerEvents = 'none';
+    draggedCard.classList.add('dragging');
   }
 
   function onPointerMove(e) {
@@ -619,12 +650,13 @@ function initDragAndDrop() {
 
       if (distance < THRESHOLD) return; // not a drag yet — do nothing
 
-      // Threshold crossed — officially start the drag
-      draggedCard = pendingCard;
-      pendingCard = null;
-      draggedCard.classList.add('dragging');
-      draggedCard.style.pointerEvents = 'none';
+      beginDrag(); // threshold crossed — officially start the drag
     }
+
+    // Card tracks the pointer directly, keeping the initial grab offset
+    // so it doesn't snap to be centered under the pointer.
+    draggedCard.style.left = (e.clientX - grabOffsetX) + 'px';
+    draggedCard.style.top = (e.clientY - grabOffsetY) + 'px';
 
     // Edge scrolling — when dragging near the top or bottom of the viewport,
     // nudge the page so cards below (or above) the visible area become reachable.
@@ -636,18 +668,20 @@ function initDragAndDrop() {
       window.scrollBy(0, -SCROLL_SPEED);
     }
 
-    // Find the card under the pointer and swap if needed
+    // Find the card under the pointer and swap the placeholder if needed.
+    // draggedCard itself has pointer-events:none, so elementFromPoint sees
+    // straight through to whatever's underneath (the placeholder or another card).
     const below = document.elementFromPoint(e.clientX, e.clientY);
     const target = below?.closest('.card');
 
-    if (target && target !== draggedCard && !target.dataset.locked) {
+    if (target && target !== placeholder && !target.dataset.locked) {
       const rect = target.getBoundingClientRect();
       const midY = rect.top + rect.height / 2;
 
       if (e.clientY < midY) {
-        cardList.insertBefore(draggedCard, target);
+        cardList.insertBefore(placeholder, target);
       } else {
-        cardList.insertBefore(draggedCard, target.nextSibling);
+        cardList.insertBefore(placeholder, target.nextSibling);
       }
 
       // After every DOM move, restore any locked cards that got displaced
@@ -658,8 +692,17 @@ function initDragAndDrop() {
   function onPointerUp() {
     pendingCard = null; // cancelled before threshold — treat as tap, do nothing
     if (!draggedCard) return;
+
     draggedCard.classList.remove('dragging');
+    draggedCard.style.position = '';
+    draggedCard.style.width = '';
+    draggedCard.style.left = '';
+    draggedCard.style.top = '';
+    draggedCard.style.zIndex = '';
     draggedCard.style.pointerEvents = '';
+
+    placeholder.replaceWith(draggedCard);
+    placeholder = null;
     draggedCard = null;
   }
 
