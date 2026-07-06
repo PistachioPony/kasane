@@ -277,3 +277,44 @@ saveProgress(state.currentPuzzleIndex + 1);
 The "Next Puzzle" handler keeps its own `saveProgress()` call too as a safety net — redundant but harmless.
 
 ---
+
+## Feature: Lift-and-follow drag redesign
+
+**File:** `script.js` → `initDragAndDrop()`, `style.css`
+**Status:** Shipped
+**Date:** July 2026
+
+### What was happening
+
+The original drag system never actually looked like dragging. Picking up a card just dimmed it to 40% opacity and left it in place — other cards would hop past it as your pointer crossed them, but the card itself never left its slot. Players said they wanted to actually see a card being lifted and moved.
+
+### The fix — a floating card + placeholder
+
+On drag start, the real card element gets pulled out of the list and turned into a `position: fixed` element that follows the pointer directly, with a lift look (slight scale-up, drop shadow, a small tilt):
+
+```css
+.card.dragging {
+  cursor: grabbing;
+  box-shadow: 0 18px 30px rgba(0, 0, 0, 0.45), 0 4px 10px rgba(0, 0, 0, 0.3);
+  transform: scale(1.045) rotate(-1.4deg);
+}
+```
+
+A dashed placeholder — a plain div with the same `data-id`, same height, and the `.card` class — takes the real card's spot in the list so nothing collapses:
+
+```javascript
+placeholder = document.createElement('div');
+placeholder.className = 'card card-placeholder';
+placeholder.dataset.id = draggedCard.dataset.id;
+placeholder.style.height = rect.height + 'px';
+draggedCard.replaceWith(placeholder);
+document.body.appendChild(draggedCard);
+```
+
+The existing reorder-on-hover logic just moves the *placeholder* through the list instead of the card itself. On drop, the real card swaps back in wherever the placeholder ended up. Because the placeholder keeps the same `.card` class and `data-id`, everything downstream that reads card order — `enforceLockedPositions()`, `checkAnswer()` — didn't need any changes to keep working correctly during a drag.
+
+### The lesson
+
+A drag interaction that only changes opacity doesn't read as "picking something up" — it reads as "something is disabled." The placeholder technique (swap the real element for a same-sized stand-in, let the real element float free) is the standard way to get a genuinely floating drag without breaking whatever logic depends on the list's DOM order.
+
+---
