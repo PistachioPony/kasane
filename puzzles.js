@@ -15,14 +15,19 @@ const THEMES = {
     titleLabel: 'YOUR DENIM TITLE',
     sourcesLine: 'Facts sourced from Heddels, Denimhunters, Long John, Levi Strauss & Co., BASF and Iron Heart.',
 
-    // Reward tiers shown on the final share card. cardColor/emoji are
-    // reused by rank across every theme so no new palette is needed —
-    // only the name changes to match the theme's voice.
+    // Which visual skin (style.css [data-skin]) this theme renders in.
+    // Multiple themes can share a skin — e.g. a future Leather Jackets
+    // pack would also use 'leather' — so no new CSS is needed per theme.
+    skin: 'denim',
+
+    // Reward tiers shown on the final share card. Color is derived from
+    // the skin by rank at render time (see getTierColor in script.js),
+    // not stored here — only the name/emoji change per theme's voice.
     titleTiers: {
-      top:    { name: 'FADE LEGEND', cardColor: '#8BC462', emoji: '🏆' },
-      second: { name: 'SAMURAI',     cardColor: '#D9D7B6', emoji: '⚔️' },
-      third:  { name: 'DENIM HEAD',  cardColor: '#878672', emoji: '🧵' },
-      bottom: { name: 'RAW RECRUIT', cardColor: '#255736', emoji: '🪡' },
+      top:    { name: 'FADE LEGEND', emoji: '🏆' },
+      second: { name: 'SAMURAI',     emoji: '⚔️' },
+      third:  { name: 'DENIM HEAD',  emoji: '🧵' },
+      bottom: { name: 'RAW RECRUIT', emoji: '🪡' },
     },
 
     puzzles: [
@@ -146,12 +151,14 @@ const THEMES = {
     titleLabel: 'YOUR BOOT TITLE',
     sourcesLine: 'Facts researched from brand histories and the heritage bootmaking community — spot a correction? Let us know.',
 
-    // Same 4 rank colors as denim — reused by rank, not reinvented per theme.
+    // 'leather' skin — also used by the future Leather Jackets pack.
+    skin: 'leather',
+
     titleTiers: {
-      top:    { name: 'OLD SOLE',    cardColor: '#8BC462', emoji: '🥾' },
-      second: { name: 'JOURNEYMAN',  cardColor: '#D9D7B6', emoji: '🔨' },
-      third:  { name: 'BOOT HEAD',   cardColor: '#878672', emoji: '👢' },
-      bottom: { name: 'GREENHORN',   cardColor: '#255736', emoji: '🤠' },
+      top:    { name: 'OLD SOLE',    emoji: '🥾' },
+      second: { name: 'JOURNEYMAN',  emoji: '🔨' },
+      third:  { name: 'BOOT HEAD',   emoji: '👢' },
+      bottom: { name: 'GREENHORN',   emoji: '🤠' },
     },
 
     // NOTE: several dates below are best-guess, flagged inline — fix as

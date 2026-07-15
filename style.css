@@ -1,24 +1,44 @@
 /* ================================
    KASANE — style.css
-   Calm, theme-neutral palette — one shared look for every pack.
+   Japanese/Western selvedge aesthetic
+
+   SKINS: every visual role below is driven by five variables
+   (--bg/--text/--text-dim/--accent/--accent-pop) plus texture.
+   :root defines the default 'denim' skin. Other skins override
+   those same variables under [data-skin="..."] — component rules
+   never change, only the values do. This means a new theme that
+   reuses an existing skin (e.g. a future leather-jackets pack
+   reusing 'leather') needs zero new CSS.
    ================================ */
 
-/* --- FONTS & ROOT VARIABLES ---
-   CSS variables work like constants in Python/Ruby.
-   Define once here, use everywhere below.
-   Change a color here and it updates the whole game.
-   --accent is for decorative/informational emphasis (titles, labels,
-   dividers). --accent-pop is reserved for interactive/success signals
-   (buttons, links, "correct" states) so it stays meaningful. */
 :root {
-  --bg:          #255736;
-  --text:        #FDFBD4;
-  --text-dim:    #D9D7B6;
-  --accent:      #878672;
-  --accent-pop:  #8BC462;
+  --bg:              #1a1f3c;
+  --text:            #f5f0e8;
+  --text-dim:        #c8bfb0;
+  --accent:          #b87333;
+  --accent-pop:      #b87333;
+  --card-texture:    url('images/fabric.jpg');
+  --body-texture:    url('images/fabdetail.jpg');
+  --card-overlay-pct: 55%;
 
   --font-title:  'Alfa Slab One', serif;
   --font-body:   'Noto Sans JP', sans-serif;
+}
+
+/* --- LEATHER SKIN (Boot Trivia, and any future leather-goods pack) ---
+   No texture — flat color. Primary text is a cream anchor rather than
+   one of the leather swatches themselves, since the darkest/lightest
+   leather tones alone don't span enough contrast to read well as body
+   copy against a near-black background. */
+body[data-skin="leather"] {
+  --bg:              #312715;
+  --text:            #F0E2C0;
+  --text-dim:        #d3af70;
+  --accent:          #7D6740;
+  --accent-pop:      #d3af70;
+  --card-texture:    none;
+  --body-texture:    none;
+  --card-overlay-pct: 0%;
 }
 
 /* --- RESET ---
@@ -34,9 +54,17 @@ html {
   overflow-x: hidden;
 }
 
-/* --- BASE --- */
+/* --- BASE ---
+   The body has the skin's texture (if any), then #app sits on top
+   with a semi-transparent overlay across the full page — tames the
+   texture while keeping it visible. When a skin has no texture this
+   overlay is just the same solid color layered on itself, so it's
+   automatically a no-op. */
 body {
   background-color: var(--bg);
+  background-image: var(--body-texture);
+  background-size: 200px;
+  background-repeat: repeat;
   color: var(--text);
   font-family: var(--font-body);
   min-height: 100vh;
@@ -46,9 +74,19 @@ body {
   overflow-x: hidden;
 }
 
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-color: color-mix(in srgb, var(--bg) 92%, transparent);
+  pointer-events: none;
+  z-index: 0;
+}
+
 
 /* --- APP WRAPPER ---
-   Centers everything, max width so it doesn't stretch on desktop. */
+   Centers everything, max width so it doesn't stretch on desktop.
+   position:relative and z-index:1 sit it above the body::before overlay. */
 #app {
   position: relative;
   z-index: 1;
@@ -135,8 +173,9 @@ body {
 }
 
 /* --- THEME PICKER (title screen) ---
-   Reuses the same .card look as puzzle cards — deliberately no new
-   colors per theme, just the words change. */
+   Reuses the same .card look as puzzle cards. Always rendered in the
+   default (denim) skin regardless of which theme it links to — skin
+   only switches once you're inside a theme's puzzle flow. */
 .theme-list {
   width: 100%;
   display: flex;
@@ -194,12 +233,12 @@ body {
   padding: 20px 0 12px;
   text-align: center;
   font-size: 0.75rem;
-  color: var(--accent);
+  color: var(--text-dim);
   line-height: 1.6;
 }
 
 .site-footer a {
-  color: var(--accent-pop);
+  color: var(--accent);
   text-decoration: none;
 }
 
@@ -273,7 +312,10 @@ body {
 
 .card {
   width: 100%;
-  background-color: rgba(253, 251, 212, 0.06);
+  background-color: color-mix(in srgb, var(--bg) 85%, white 15%);
+  background-image: var(--card-texture);
+  background-size: cover;
+  background-position: center;
   border-radius: 10px;
   padding: 16px 20px;
   cursor: default;
@@ -287,6 +329,17 @@ body {
   overflow: hidden;
   touch-action: pan-y;
   user-select: none;
+}
+
+/* Overlay on each card, strength set per skin — tames the texture so
+   text stays readable. Skins with no texture set this to 0%, so it's
+   a no-op rather than muddying the flat color underneath. */
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-color: color-mix(in srgb, var(--bg) var(--card-overlay-pct), transparent);
+  border-radius: 8px;
 }
 
 .card-drag-handle {
@@ -339,7 +392,7 @@ body {
 }
 
 .card.incorrect {
-  border-color: var(--accent);
+  border-color: var(--text-dim);
 }
 
 .card.dragging {
@@ -349,8 +402,13 @@ body {
 }
 
 .card-placeholder {
-  border: 2px dashed rgba(253, 251, 212, 0.28);
-  background: rgba(253, 251, 212, 0.04);
+  border: 2px dashed color-mix(in srgb, var(--text) 28%, transparent);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+
+/* Suppress the overlay so the dashed placeholder reads as empty */
+.card-placeholder::before {
+  content: none;
 }
 
 .card[data-locked="true"] {
@@ -398,7 +456,7 @@ body {
 }
 
 .results-outcome.won  { color: var(--accent-pop); }
-.results-outcome.lost { color: var(--accent); }
+.results-outcome.lost { color: var(--text-dim); }
 
 .facts-list {
   width: 100%;
@@ -409,7 +467,7 @@ body {
 }
 
 .fact-card {
-  background-color: rgba(253, 251, 212, 0.08);
+  background-color: color-mix(in srgb, var(--bg) 85%, white 15%);
   border-left: 3px solid var(--accent);
   border-radius: 6px;
   padding: 12px 16px;
@@ -466,7 +524,7 @@ body {
   align-items: center;
   gap: 14px;
   padding: 20px 0;
-  border-bottom: 1px solid rgba(135, 134, 114, 0.25);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
 }
 
 .share-card-canvas {
@@ -497,7 +555,7 @@ body {
 
 .sources-line {
   font-size: 0.65rem;
-  color: var(--accent);
+  color: var(--text-dim);
   text-align: center;
   letter-spacing: 0.05em;
   line-height: 1.6;
@@ -603,7 +661,7 @@ body {
 
 .kofi-link:hover {
   opacity: 1;
-  color: var(--accent-pop);
+  color: var(--accent);
 }
 
 /* START OVER link below CONTINUE button on title screen */

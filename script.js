@@ -34,6 +34,18 @@ function currentPuzzles() {
   return currentTheme().puzzles;
 }
 
+// Stamps the active theme's skin onto <body> so style.css's
+// [data-skin="..."] rules take over. 'denim' is the default look
+// defined on :root, so it needs no attribute at all.
+function applySkin(themeId) {
+  const skin = THEMES[themeId]?.skin;
+  if (skin && skin !== 'denim') {
+    document.body.dataset.skin = skin;
+  } else {
+    delete document.body.dataset.skin;
+  }
+}
+
 // --------------------------------
 // 3. DOM REFERENCES
 // We grab references to HTML elements once and store them,
@@ -89,6 +101,7 @@ function renderThemeList() {
       const themeId = card.dataset.themeId;
       const saved = getSavedProgress(themeId);
       state.currentThemeId = themeId;
+      applySkin(themeId);
       if (saved) {
         state.currentPuzzleIndex = saved.currentPuzzleIndex;
         state.results = saved.results;
@@ -110,6 +123,7 @@ function renderThemeList() {
 }
 
 document.getElementById('btn-play-again').addEventListener('click', () => {
+  delete document.body.dataset.skin;
   showScreen('title');
   renderThemeList();
 });
@@ -254,7 +268,7 @@ function checkAnswer() {
     const hint = document.createElement('p');
     hint.id = 'border-hint';
     hint.className = 'border-hint';
-    hint.textContent = 'Copper border = correct position · Grey = incorrect';
+    hint.textContent = 'Bright border = correct position · Muted border = incorrect';
     document.getElementById('card-list').after(hint);
   }
 
@@ -413,50 +427,75 @@ function calculateTierKey(results) {
   return 'bottom';
 }
 
+// Reads a skin's live CSS custom property value off <body> — so the
+// canvas card always matches whichever [data-skin] is currently active
+// instead of keeping its own separate copy of the palette.
+function getSkinColor(varName) {
+  return getComputedStyle(document.body).getPropertyValue(varName).trim();
+}
+
+// Rank → role mapping. Every skin defines these five roles (see
+// style.css :root and [data-skin="leather"]), so any theme's tier
+// colors come from its skin automatically — no per-theme hex needed.
+const TIER_COLOR_VARS = {
+  top:    '--accent-pop',
+  second: '--text-dim',
+  third:  '--accent',
+  bottom: '--bg',
+};
+
+function getTierColor(tierKey) {
+  return getSkinColor(TIER_COLOR_VARS[tierKey]);
+}
+
 function drawCardBase(ctx, W, H) {
-  // Cream background — the tag itself
-  ctx.fillStyle = '#FDFBD4';
+  const bg     = getSkinColor('--text');   // the tag itself — the light role
+  const ink    = getSkinColor('--bg');     // dark role, reads on the light tag
+  const accent = getSkinColor('--accent');
+  const pop    = getSkinColor('--accent-pop');
+
+  ctx.fillStyle = bg;
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = '#878672';
+  ctx.strokeStyle = accent;
   ctx.lineWidth = 10;
   ctx.strokeRect(40, 40, W - 80, H - 80);
 
-  ctx.strokeStyle = '#8BC462';
+  ctx.strokeStyle = pop;
   ctx.lineWidth = 2;
   ctx.strokeRect(58, 58, W - 116, H - 116);
 
-  // KASANE in dark green on cream
-  ctx.fillStyle = '#255736';
+  // KASANE in the dark role, on the light tag
+  ctx.fillStyle = ink;
   ctx.font = 'normal 108px "Alfa Slab One"';
   ctx.textAlign = 'center';
-  ctx.shadowColor = '#878672';
+  ctx.shadowColor = accent;
   ctx.shadowOffsetX = 4;
   ctx.shadowOffsetY = 4;
   ctx.shadowBlur = 0;
   ctx.fillText('KASANE', W / 2, 182);
   ctx.shadowColor = 'transparent';
 
-  ctx.fillStyle = '#878672';
+  ctx.fillStyle = accent;
   ctx.font = '300 38px "Noto Sans JP"';
   ctx.fillText('重ねる · かさねる', W / 2, 248);
 
-  ctx.strokeStyle = '#878672';
+  ctx.strokeStyle = accent;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(160, 288);
   ctx.lineTo(920, 288);
   ctx.stroke();
 
-  ctx.strokeStyle = '#878672';
+  ctx.strokeStyle = accent;
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(160, 928);
   ctx.lineTo(920, 928);
   ctx.stroke();
 
-  // URL — dark green so it reads clearly on the cream background
-  ctx.fillStyle = '#255736';
+  // URL — dark role so it reads clearly on the light tag
+  ctx.fillStyle = ink;
   ctx.font = '300 38px "Noto Sans JP"';
   ctx.fillText('pistachiopony.github.io/kasane', W / 2, 984);
 }
@@ -469,18 +508,21 @@ function drawFinalCard(canvas, theme, results) {
 
   drawCardBase(ctx, W, H);
 
-  const tier = theme.titleTiers[calculateTierKey(results)];
+  const tierKey = calculateTierKey(results);
+  const tier = theme.titleTiers[tierKey];
+  const tierColor = getTierColor(tierKey);
+  const accent = getSkinColor('--accent');
   const total = results.reduce((sum, r) => sum + r.attempts, 0);
   const firstTries = results.filter(r => r.attempts === 1).length;
 
-  ctx.fillStyle = '#878672';
+  ctx.fillStyle = accent;
   ctx.font = '300 32px "Noto Sans JP"';
   ctx.textAlign = 'center';
   ctx.fillText(theme.titleLabel, W / 2, 400);
 
   const titleSize = tier.name.length > 10 ? 96 : 116;
-  ctx.fillStyle = tier.cardColor;
-  ctx.shadowColor = tier.cardColor + '80';
+  ctx.fillStyle = tierColor;
+  ctx.shadowColor = tierColor + '80';
   ctx.shadowOffsetX = 6;
   ctx.shadowOffsetY = 6;
   ctx.shadowBlur = 0;
@@ -488,7 +530,7 @@ function drawFinalCard(canvas, theme, results) {
   ctx.fillText(tier.name, W / 2, 540);
   ctx.shadowColor = 'transparent';
 
-  ctx.fillStyle = '#878672';
+  ctx.fillStyle = accent;
   ctx.font = '300 36px "Noto Sans JP"';
   const scoreText = firstTries === results.length
     ? `All ${results.length} puzzles solved on the first try`
