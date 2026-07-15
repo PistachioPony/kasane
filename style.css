@@ -398,10 +398,13 @@ body::before {
 
 .card.correct {
   border-color: var(--accent-pop);
+  border-width: 3px;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--accent-pop) 55%, transparent);
 }
 
 .card.incorrect {
   border-color: var(--text-dim);
+  border-width: 3px;
 }
 
 .card.dragging {
