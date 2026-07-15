@@ -1,0 +1,509 @@
+<title>Kasane — card interaction tester</title>
+<style>
+  /* ---- Kasane's real tokens, both skins, lifted from the live game ---- */
+  :root {
+    --bg:         #1a1f3c;
+    --text:       #f5f0e8;
+    --text-dim:   #c8bfb0;
+    --accent:     #b87333;
+    --accent-pop: #b87333;
+  }
+  [data-skin="leather"] {
+    --bg:         #312715;
+    --text:       #F0E2C0;
+    --text-dim:   #a78a58;
+    --accent:     #7D6740;
+    --accent-pop: #d3af70;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    background: #0d0f1a;
+  }
+
+  body {
+    font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+    color: var(--text);
+    display: flex;
+    justify-content: center;
+    padding: 0 0 120px;
+  }
+
+  #stage {
+    width: 100%;
+    max-width: 430px;
+    background: var(--bg);
+    min-height: 100vh;
+    padding: 20px 20px 40px;
+    transition: background-color 0.2s ease;
+  }
+
+  /* ---- control panel ---- */
+  #panel {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    background: var(--bg);
+    padding: 14px 0 16px;
+    margin: -20px -20px 18px;
+    padding-left: 20px;
+    padding-right: 20px;
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+
+  .panel-title {
+    font-size: 0.68rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .toggle-row {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .toggle-row:last-child { margin-bottom: 0; }
+
+  .toggle-label {
+    font-size: 0.72rem;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+  }
+
+  .segmented {
+    display: flex;
+    border: 1.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    border-radius: 7px;
+    overflow: hidden;
+  }
+
+  .segmented button {
+    flex: 1;
+    font: inherit;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    padding: 8px 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .segmented button + button {
+    border-left: 1.5px solid color-mix(in srgb, var(--accent) 55%, transparent);
+  }
+
+  .segmented button.active {
+    background: var(--accent-pop);
+    color: var(--bg);
+  }
+
+  .caption {
+    font-size: 0.72rem;
+    color: var(--text-dim);
+    line-height: 1.5;
+    margin: 14px 0 20px;
+    padding: 10px 12px;
+    border-left: 2px solid var(--accent);
+    background: color-mix(in srgb, var(--bg) 85%, white 15%);
+    border-radius: 0 6px 6px 0;
+  }
+
+  .caption strong { color: var(--text); }
+
+  /* ---- puzzle heading, matches the real puzzle screen ---- */
+  .puzzle-title {
+    font-family: Rockwell, 'Roboto Slab', Georgia, serif;
+    font-weight: 700;
+    font-size: 1.7rem;
+    color: var(--text);
+    text-shadow: 1px 1px 0px var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .puzzle-sub {
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+  }
+
+  /* ---- cards ---- */
+  #card-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #stage[data-compact="true"] #card-list { gap: 7px; }
+
+  .card {
+    background-color: color-mix(in srgb, var(--bg) 85%, white 15%);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    border: 2px solid transparent;
+    transition: border-color 0.2s ease, transform 0.1s ease, padding 0.2s ease;
+    position: relative;
+    touch-action: pan-y;
+    user-select: none;
+  }
+
+  #stage[data-compact="true"] .card {
+    padding: 9px 14px;
+    border-radius: 8px;
+  }
+
+  .card-handle {
+    font-size: 1.6rem;
+    color: var(--text);
+    opacity: 0.7;
+    padding: 8px 14px;
+    touch-action: none;
+    cursor: grab;
+    flex-shrink: 0;
+  }
+
+  #stage[data-compact="true"] .card-handle {
+    font-size: 1.15rem;
+    padding: 4px 8px;
+  }
+
+  .card-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex: 1;
+  }
+
+  .card-label {
+    font-family: Rockwell, 'Roboto Slab', Georgia, serif;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    letter-spacing: 0.03em;
+  }
+
+  .card-sub {
+    font-size: 0.75rem;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+  }
+
+  #stage[data-compact="true"] .card-label { font-size: 0.82rem; }
+  #stage[data-compact="true"] .card-sub   { font-size: 0.65rem; }
+
+  .card.armed {
+    transform: scale(1.02);
+  }
+
+  .card.dragging {
+    cursor: grabbing;
+    box-shadow: 0 18px 30px rgba(0,0,0,0.45), 0 4px 10px rgba(0,0,0,0.3);
+    transform: scale(1.045) rotate(-1.4deg);
+  }
+
+  .card-placeholder {
+    border: 2px dashed color-mix(in srgb, var(--text) 28%, transparent);
+    background: color-mix(in srgb, var(--text) 4%, transparent);
+  }
+
+  /* filler content so there's real room to test scrolling past the cards */
+  #filler {
+    margin-top: 40px;
+    padding-top: 24px;
+    border-top: 1px solid color-mix(in srgb, var(--accent) 25%, transparent);
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    line-height: 1.9;
+  }
+
+  #filler p { margin-bottom: 14px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card, .card-handle { transition: none; }
+  }
+</style>
+
+<div id="stage" data-compact="false">
+
+  <div id="panel">
+    <p class="panel-title">Card interaction tester</p>
+
+    <div class="toggle-row">
+      <span class="toggle-label">Grab method</span>
+      <div class="segmented" id="grab-toggle">
+        <button data-value="handle" class="active">Handles</button>
+        <button data-value="hold">Press &amp; hold</button>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <span class="toggle-label">Card size</span>
+      <div class="segmented" id="size-toggle">
+        <button data-value="false" class="active">Current</button>
+        <button data-value="true">Compact</button>
+      </div>
+    </div>
+
+    <div class="toggle-row">
+      <span class="toggle-label">Skin</span>
+      <div class="segmented" id="skin-toggle">
+        <button data-value="denim" class="active">Denim</button>
+        <button data-value="leather">Leather</button>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption" id="caption">
+    <strong>Try it:</strong> scroll down past the cards without picking one up, then drag a card to reorder it. With handles, grab the ⠿ icon. With press &amp; hold, press anywhere on a card and hold still for a beat before moving it — on a mouse, that means keep the button held down without releasing.
+  </p>
+
+  <p class="caption" id="status" style="border-color: var(--accent-pop);">
+    <strong>Status:</strong> <span id="status-text">idle — press a card</span>
+  </p>
+
+  <h2 class="puzzle-title">The Denim Trail</h2>
+  <p class="puzzle-sub">Order these places by when they first shaped denim history.</p>
+
+  <div id="card-list"></div>
+
+  <div id="filler">
+    <p>This space exists purely so there's something real to scroll through — keep scrolling to see how it feels to pass over the cards above without accidentally grabbing one.</p>
+    <p>On a phone, try a quick flicking swipe (should always just scroll) versus a slower, deliberate press (should only start a drag in "press &amp; hold" mode, or only from the handle in "handles" mode).</p>
+    <p>Nothing below this point is part of the actual puzzle — it's just scroll filler.</p>
+    <p>Keep going.</p>
+    <p>Almost there.</p>
+    <p>This is the bottom.</p>
+  </div>
+</div>
+
+<script>
+(function () {
+  const ITEMS = [
+    { id: 'india',   label: 'India',        sub: 'Indigo plant & cotton' },
+    { id: 'genoa',   label: 'Genoa, Italy',  sub: 'Origin of "jean" fabric' },
+    { id: 'nimes',   label: 'Nîmes, France', sub: 'Origin of "denim"' },
+    { id: 'usa',     label: 'United States', sub: 'Riveted jeans patent' },
+    { id: 'germany', label: 'Germany',       sub: 'Synthetic indigo' },
+    { id: 'japan',   label: 'Japan',         sub: 'Selvedge renaissance' },
+  ];
+
+  const stage = document.getElementById('stage');
+  const cardList = document.getElementById('card-list');
+
+  let order = ITEMS.map(i => i.id);
+  // light shuffle so it's not trivially in order
+  order = [order[2], order[0], order[4], order[1], order[5], order[3]];
+
+  let grabMethod = 'handle';
+
+  function render() {
+    cardList.innerHTML = order.map(id => {
+      const item = ITEMS.find(i => i.id === id);
+      const handle = grabMethod === 'handle'
+        ? `<span class="card-handle">⠿</span>`
+        : '';
+      return `
+        <div class="card" data-id="${item.id}">
+          ${handle}
+          <div class="card-content">
+            <span class="card-label">${item.label}</span>
+            <span class="card-sub">${item.sub}</span>
+          </div>
+          ${handle}
+        </div>
+      `;
+    }).join('');
+    initDrag();
+  }
+
+  // ---- toggles ----
+  function wireSegmented(id, onChange) {
+    const el = document.getElementById(id);
+    el.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      el.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      onChange(btn.dataset.value);
+    });
+  }
+
+  wireSegmented('grab-toggle', value => {
+    grabMethod = value;
+    render();
+  });
+  wireSegmented('size-toggle', value => {
+    stage.dataset.compact = value;
+  });
+  wireSegmented('skin-toggle', value => {
+    stage.dataset.skin = value;
+  });
+
+  // ---- drag & drop (mirrors the real game's pointer-event approach) ----
+  // Document-level listeners are attached exactly once, below, outside of
+  // render() — render() runs on every toggle switch, and re-adding
+  // document listeners each time would stack duplicates.
+  let draggedCard = null;
+  let pendingCard = null;
+  let placeholder = null;
+  let startX = 0, startY = 0;
+  let grabOffsetX = 0, grabOffsetY = 0;
+  let holdTimer = null;
+  let armedCard = null;
+
+  const THRESHOLD = 8;
+  const HOLD_MS = 320;
+  const HOLD_JITTER = 6;
+
+  const statusText = document.getElementById('status-text');
+  function setStatus(text) { statusText.textContent = text; }
+
+  function beginDrag(card, x, y) {
+    setStatus('dragging — drop it in a new spot');
+    draggedCard = card;
+    pendingCard = null;
+    const rect = draggedCard.getBoundingClientRect();
+    grabOffsetX = x - rect.left;
+    grabOffsetY = y - rect.top;
+
+    placeholder = document.createElement('div');
+    placeholder.className = 'card card-placeholder';
+    placeholder.style.height = rect.height + 'px';
+    draggedCard.replaceWith(placeholder);
+    document.body.appendChild(draggedCard);
+
+    draggedCard.style.position = 'fixed';
+    draggedCard.style.width = rect.width + 'px';
+    draggedCard.style.left = rect.left + 'px';
+    draggedCard.style.top = rect.top + 'px';
+    draggedCard.style.zIndex = 1000;
+    draggedCard.style.pointerEvents = 'none';
+    draggedCard.classList.remove('armed');
+    draggedCard.classList.add('dragging');
+  }
+
+  function moveDrag(x, y) {
+    draggedCard.style.left = (x - grabOffsetX) + 'px';
+    draggedCard.style.top = (y - grabOffsetY) + 'px';
+
+    const SCROLL_ZONE = 80, SCROLL_SPEED = 6;
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    if (y > window.innerHeight - SCROLL_ZONE && window.scrollY < maxScroll) {
+      window.scrollBy(0, SCROLL_SPEED);
+    } else if (y < SCROLL_ZONE && window.scrollY > 0) {
+      window.scrollBy(0, -SCROLL_SPEED);
+    }
+
+    const below = document.elementFromPoint(x, y);
+    const target = below?.closest('.card');
+    if (target && target !== placeholder) {
+      const rect = target.getBoundingClientRect();
+      const midY = rect.top + rect.height / 2;
+      if (y < midY) cardList.insertBefore(placeholder, target);
+      else cardList.insertBefore(placeholder, target.nextSibling);
+    }
+  }
+
+  function endDrag() {
+    if (!draggedCard) return;
+    draggedCard.classList.remove('dragging');
+    draggedCard.style.position = '';
+    draggedCard.style.width = '';
+    draggedCard.style.left = '';
+    draggedCard.style.top = '';
+    draggedCard.style.zIndex = '';
+    draggedCard.style.pointerEvents = '';
+    placeholder.replaceWith(draggedCard);
+
+    // reflect new order
+    order = Array.from(cardList.children).map(c => c.dataset.id);
+
+    placeholder = null;
+    draggedCard = null;
+    setStatus('idle — press a card');
+  }
+
+  function clearHold(reason) {
+    if (holdTimer) clearTimeout(holdTimer);
+    holdTimer = null;
+    if (armedCard) armedCard.classList.remove('armed');
+    armedCard = null;
+    if (reason) setStatus(reason);
+  }
+
+  // Called after every render() — only wires per-card pointerdown listeners.
+  // Document-level listeners (below, outside this function) stay attached
+  // once for the page's whole lifetime.
+  function initDrag() {
+    // --- handle mode: pointerdown on the ⠿ icon starts tracking immediately ---
+    cardList.querySelectorAll('.card-handle').forEach(handle => {
+      handle.addEventListener('pointerdown', e => {
+        pendingCard = handle.closest('.card');
+        startX = e.clientX;
+        startY = e.clientY;
+      });
+    });
+
+    // --- press & hold mode: pointerdown anywhere on the card arms a timer ---
+    if (grabMethod === 'hold') {
+      cardList.querySelectorAll('.card').forEach(card => {
+        card.addEventListener('pointerdown', e => {
+          startX = e.clientX;
+          startY = e.clientY;
+          armedCard = card;
+          setStatus('holding — keep still…');
+          holdTimer = setTimeout(() => {
+            if (!armedCard) return;
+            armedCard.classList.add('armed');
+            pendingCard = armedCard;
+            setStatus('armed! move to drag');
+          }, HOLD_MS);
+        });
+      });
+    }
+  }
+
+  document.addEventListener('pointermove', e => {
+    if (holdTimer && armedCard && !pendingCard) {
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (Math.sqrt(dx * dx + dy * dy) > HOLD_JITTER) clearHold('moved too soon — that read as a scroll, not a grab');
+    }
+
+    if (pendingCard && !draggedCard) {
+      const dx = e.clientX - startX, dy = e.clientY - startY;
+      if (Math.sqrt(dx * dx + dy * dy) < THRESHOLD) return;
+      beginDrag(pendingCard, e.clientX, e.clientY);
+    }
+
+    if (draggedCard) moveDrag(e.clientX, e.clientY);
+  });
+
+  document.addEventListener('pointerup', () => {
+    const wasDragging = !!draggedCard;
+    pendingCard = null;
+    clearHold();
+    endDrag();
+    if (!wasDragging) setStatus('idle — press a card');
+  });
+  document.addEventListener('pointercancel', () => {
+    const wasDragging = !!draggedCard;
+    pendingCard = null;
+    clearHold();
+    endDrag();
+    if (!wasDragging) setStatus('idle — press a card');
+  });
+
+  render();
+})();
+</script>
