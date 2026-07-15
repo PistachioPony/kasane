@@ -683,11 +683,14 @@ function initDragAndDrop() {
 
     // Edge scrolling — when dragging near the top or bottom of the viewport,
     // nudge the page so cards below (or above) the visible area become reachable.
+    // Clamped to the page's real scrollable range so it can't scroll past
+    // actual content into empty space.
     const SCROLL_ZONE = 80;
     const SCROLL_SPEED = 6;
-    if (e.clientY > window.innerHeight - SCROLL_ZONE) {
+    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+    if (e.clientY > window.innerHeight - SCROLL_ZONE && window.scrollY < maxScroll) {
       window.scrollBy(0, SCROLL_SPEED);
-    } else if (e.clientY < SCROLL_ZONE) {
+    } else if (e.clientY < SCROLL_ZONE && window.scrollY > 0) {
       window.scrollBy(0, -SCROLL_SPEED);
     }
 
