@@ -82,19 +82,19 @@ const THEMES = {
         items: [
           { id: 'bigjohn',   label: 'Big John',        sub: 'Kojima, Japan' },
           { id: 'sda',       label: "Studio D'Artisan", sub: 'Osaka, Japan' },
+          { id: 'evisu',     label: 'Evisu',            sub: 'Osaka, Japan' },
           { id: 'samurai',   label: 'Samurai Jeans',    sub: 'Osaka, Japan' },
           { id: 'ironheart', label: 'Iron Heart',       sub: 'Japan' },
           { id: 'nf',        label: 'Naked & Famous',   sub: 'Montreal, Canada' },
-          { id: 'soso',      label: 'SoSo Brothers',    sub: 'South of Stockholm' },
         ],
-        correctOrder: ['bigjohn', 'sda', 'samurai', 'ironheart', 'nf', 'soso'],
+        correctOrder: ['bigjohn', 'sda', 'evisu', 'samurai', 'ironheart', 'nf'],
         facts: [
           { id: 'bigjohn',   fact: "Founded in 1940 as Maruo Hifuku, Big John produced Japan's first domestically made jeans in 1965 using imported denim fabric." },
           { id: 'sda',       fact: "Studio D'Artisan was founded in Osaka in 1979 by Shigeharu Tagaki. It was an original member of the legendary Osaka 5." },
+          { id: 'evisu',     fact: "Hidehiko Yamane founded Evisu in Osaka in 1991, hand-painting each pair's now-iconic seagull logo onto the back pocket with an airbrush — a process so slow that early batches numbered only a few pairs a day." },
           { id: 'samurai',   fact: 'Toru Nogami founded Samurai Jeans in 1997 in Osaka, sewing jeans by himself from the start with an obsessive focus on vintage American denim construction.' },
           { id: 'ironheart', fact: 'Shinichi Haraki founded Iron Heart in 2002 after 20 years in the garment industry, building ultra-heavy denim for Japan\'s motorcycle and biker communities.' },
           { id: 'nf',        fact: 'Brandon Svarc founded Naked & Famous in Montreal in 2008, rejecting celebrity culture to focus purely on the fabric and construction.' },
-          { id: 'soso',      fact: 'Founded in 2010 in Sweden by Jannis and Johan Blom — SOSO stands for South of Stockholm. They produce fully custom raw denim.' },
         ],
       },
       {

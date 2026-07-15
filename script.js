@@ -122,11 +122,14 @@ function renderThemeList() {
   });
 }
 
-document.getElementById('btn-play-again').addEventListener('click', () => {
+// Shared by "Play Again" and the puzzle/results screens' "Home" links.
+function goHome() {
   delete document.body.dataset.skin;
   showScreen('title');
   renderThemeList();
-});
+}
+
+document.getElementById('btn-play-again').addEventListener('click', goHome);
 
 // --------------------------------
 // 6. LOAD PUZZLE
@@ -147,6 +150,7 @@ function loadPuzzle(index) {
   // like Ruby's "#{}" but more powerful since you can write multi-line HTML.
   screens.puzzle.innerHTML = `
     <div class="puzzle-header">
+      <button id="btn-home-puzzle" class="btn-home-link">← Home</button>
       <p class="puzzle-count">Puzzle ${index + 1} of ${currentPuzzles().length}</p>
       <h2 class="puzzle-title">${puzzle.title}</h2>
       <p class="puzzle-instruction">${puzzle.instruction}</p>
@@ -176,6 +180,7 @@ function loadPuzzle(index) {
   // Wire up the submit button after injecting the HTML.
   // We can't do this before because the button didn't exist yet.
   document.getElementById('btn-submit').addEventListener('click', checkAnswer);
+  document.getElementById('btn-home-puzzle').addEventListener('click', goHome);
 
   // Activate drag and drop on the cards
   initDragAndDrop();
@@ -294,6 +299,7 @@ function showInfoCard(puzzle, won) {
 
   screens.results.innerHTML = `
     <div class="results-header">
+      <button id="btn-home-results" class="btn-home-link">← Home</button>
       <p class="puzzle-count">Puzzle ${state.currentPuzzleIndex + 1} of ${currentPuzzles().length}</p>
       <h2 class="puzzle-title">${puzzle.title}</h2>
       <p class="results-outcome ${won ? 'won' : 'lost'}">
@@ -330,6 +336,8 @@ function showInfoCard(puzzle, won) {
   `;
 
   showScreen('results');
+
+  document.getElementById('btn-home-results').addEventListener('click', goHome);
 
   document.getElementById('btn-next').addEventListener('click', () => {
     // Last puzzle (won or not) → go to congrats instead of loading a

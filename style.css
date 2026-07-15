@@ -692,3 +692,23 @@ body::before {
 .btn-start-over:hover {
   opacity: 1;
 }
+
+/* HOME link at the top of the puzzle and results screens */
+.btn-home-link {
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  letter-spacing: 0.1em;
+  text-decoration: underline;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.btn-home-link:hover {
+  opacity: 1;
+}
