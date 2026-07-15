@@ -19,10 +19,10 @@ const THEMES = {
     // reused by rank across every theme so no new palette is needed —
     // only the name changes to match the theme's voice.
     titleTiers: {
-      top:    { name: 'FADE LEGEND', cardColor: '#c0392b', emoji: '🏆' },
-      second: { name: 'SAMURAI',     cardColor: '#1a3a5c', emoji: '⚔️' },
-      third:  { name: 'DENIM HEAD',  cardColor: '#d4812a', emoji: '🧵' },
-      bottom: { name: 'RAW RECRUIT', cardColor: '#a0522d', emoji: '🪡' },
+      top:    { name: 'FADE LEGEND', cardColor: '#8BC462', emoji: '🏆' },
+      second: { name: 'SAMURAI',     cardColor: '#D9D7B6', emoji: '⚔️' },
+      third:  { name: 'DENIM HEAD',  cardColor: '#878672', emoji: '🧵' },
+      bottom: { name: 'RAW RECRUIT', cardColor: '#255736', emoji: '🪡' },
     },
 
     puzzles: [
@@ -148,10 +148,10 @@ const THEMES = {
 
     // Same 4 rank colors as denim — reused by rank, not reinvented per theme.
     titleTiers: {
-      top:    { name: 'OLD SOLE',    cardColor: '#c0392b', emoji: '🥾' },
-      second: { name: 'JOURNEYMAN',  cardColor: '#1a3a5c', emoji: '🔨' },
-      third:  { name: 'BOOT HEAD',   cardColor: '#d4812a', emoji: '👢' },
-      bottom: { name: 'GREENHORN',   cardColor: '#a0522d', emoji: '🤠' },
+      top:    { name: 'OLD SOLE',    cardColor: '#8BC462', emoji: '🥾' },
+      second: { name: 'JOURNEYMAN',  cardColor: '#D9D7B6', emoji: '🔨' },
+      third:  { name: 'BOOT HEAD',   cardColor: '#878672', emoji: '👢' },
+      bottom: { name: 'GREENHORN',   cardColor: '#255736', emoji: '🤠' },
     },
 
     // NOTE: several dates below are best-guess, flagged inline — fix as

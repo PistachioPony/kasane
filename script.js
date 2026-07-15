@@ -414,50 +414,49 @@ function calculateTierKey(results) {
 }
 
 function drawCardBase(ctx, W, H) {
-  // Ecru background — feels like a physical denim hang tag
-  ctx.fillStyle = '#f5f0e8';
+  // Cream background — the tag itself
+  ctx.fillStyle = '#FDFBD4';
   ctx.fillRect(0, 0, W, H);
 
-  ctx.strokeStyle = '#b87333';
+  ctx.strokeStyle = '#878672';
   ctx.lineWidth = 10;
   ctx.strokeRect(40, 40, W - 80, H - 80);
 
-  // Selvedge ID red for the inner border — a nod to the red selvedge stripe
-  ctx.strokeStyle = '#c0392b';
+  ctx.strokeStyle = '#8BC462';
   ctx.lineWidth = 2;
   ctx.strokeRect(58, 58, W - 116, H - 116);
 
-  // KASANE in dark indigo on cream
-  ctx.fillStyle = '#1a1f3c';
+  // KASANE in dark green on cream
+  ctx.fillStyle = '#255736';
   ctx.font = 'normal 108px "Alfa Slab One"';
   ctx.textAlign = 'center';
-  ctx.shadowColor = '#b87333';
+  ctx.shadowColor = '#878672';
   ctx.shadowOffsetX = 4;
   ctx.shadowOffsetY = 4;
   ctx.shadowBlur = 0;
   ctx.fillText('KASANE', W / 2, 182);
   ctx.shadowColor = 'transparent';
 
-  ctx.fillStyle = '#b87333';
+  ctx.fillStyle = '#878672';
   ctx.font = '300 38px "Noto Sans JP"';
   ctx.fillText('重ねる · かさねる', W / 2, 248);
 
-  ctx.strokeStyle = '#b87333';
+  ctx.strokeStyle = '#878672';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(160, 288);
   ctx.lineTo(920, 288);
   ctx.stroke();
 
-  ctx.strokeStyle = '#b87333';
+  ctx.strokeStyle = '#878672';
   ctx.lineWidth = 2;
   ctx.beginPath();
   ctx.moveTo(160, 928);
   ctx.lineTo(920, 928);
   ctx.stroke();
 
-  // URL — larger and darker so it reads clearly on the cream background
-  ctx.fillStyle = '#1a1f3c';
+  // URL — dark green so it reads clearly on the cream background
+  ctx.fillStyle = '#255736';
   ctx.font = '300 38px "Noto Sans JP"';
   ctx.fillText('pistachiopony.github.io/kasane', W / 2, 984);
 }
@@ -474,7 +473,7 @@ function drawFinalCard(canvas, theme, results) {
   const total = results.reduce((sum, r) => sum + r.attempts, 0);
   const firstTries = results.filter(r => r.attempts === 1).length;
 
-  ctx.fillStyle = '#555e7a';
+  ctx.fillStyle = '#878672';
   ctx.font = '300 32px "Noto Sans JP"';
   ctx.textAlign = 'center';
   ctx.fillText(theme.titleLabel, W / 2, 400);
@@ -489,7 +488,7 @@ function drawFinalCard(canvas, theme, results) {
   ctx.fillText(tier.name, W / 2, 540);
   ctx.shadowColor = 'transparent';
 
-  ctx.fillStyle = '#555e7a';
+  ctx.fillStyle = '#878672';
   ctx.font = '300 36px "Noto Sans JP"';
   const scoreText = firstTries === results.length
     ? `All ${results.length} puzzles solved on the first try`

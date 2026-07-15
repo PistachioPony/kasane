@@ -1,21 +1,21 @@
 /* ================================
    KASANE — style.css
-   Japanese/Western selvedge aesthetic
+   Calm, theme-neutral palette — one shared look for every pack.
    ================================ */
 
 /* --- FONTS & ROOT VARIABLES ---
    CSS variables work like constants in Python/Ruby.
    Define once here, use everywhere below.
-   Change a color here and it updates the whole game. */
+   Change a color here and it updates the whole game.
+   --accent is for decorative/informational emphasis (titles, labels,
+   dividers). --accent-pop is reserved for interactive/success signals
+   (buttons, links, "correct" states) so it stays meaningful. */
 :root {
-  --indigo:      #1a1f3c;
-  --indigo-mid:  #252b50;
-  --ecru:        #f5f0e8;
-  --ecru-dim:    #c8bfb0;
-  --copper:      #b87333;
-  --selvedge-red:#c0392b;
-  --white:       #ffffff;
-  --grey:        #555e7a;
+  --bg:          #255736;
+  --text:        #FDFBD4;
+  --text-dim:    #D9D7B6;
+  --accent:      #878672;
+  --accent-pop:  #8BC462;
 
   --font-title:  'Alfa Slab One', serif;
   --font-body:   'Noto Sans JP', sans-serif;
@@ -34,16 +34,10 @@ html {
   overflow-x: hidden;
 }
 
-/* --- BASE ---
-   The body has the fabric texture, then #app sits on top
-   with a semi-transparent indigo overlay across the full page.
-   This tames the busy texture while keeping it visible. */
+/* --- BASE --- */
 body {
-  background-color: var(--indigo);
-  background-image: url('images/fabdetail.jpg');
-  background-size: 200px;
-  background-repeat: repeat;
-  color: var(--ecru);
+  background-color: var(--bg);
+  color: var(--text);
   font-family: var(--font-body);
   min-height: 100vh;
   display: flex;
@@ -52,22 +46,9 @@ body {
   overflow-x: hidden;
 }
 
-/* Full-page overlay — sits between the texture and all content.
-   rgba(26, 31, 60, 0.82) means 82% opaque indigo, letting just
-   a hint of texture bleed through. */
-body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-color: rgba(26, 31, 60, 0.92);
-  pointer-events: none;
-  z-index: 0;
-}
-
 
 /* --- APP WRAPPER ---
-   Centers everything, max width so it doesn't stretch on desktop.
-   position:relative and z-index:1 sit it above the body::before overlay. */
+   Centers everything, max width so it doesn't stretch on desktop. */
 #app {
   position: relative;
   z-index: 1;
@@ -107,8 +88,8 @@ body::before {
   font-family: var(--font-title);
   font-size: clamp(2.6rem, 10vw, 4rem);
   letter-spacing: clamp(0.05em, 1.5vw, 0.15em);
-  color: var(--ecru);
-  text-shadow: 2px 2px 0px var(--copper);
+  color: var(--text);
+  text-shadow: 2px 2px 0px var(--accent);
   line-height: 1;
 }
 
@@ -116,7 +97,7 @@ body::before {
   font-family: var(--font-body);
   font-size: 1.2rem;
   font-weight: 400;
-  color: var(--copper);
+  color: var(--accent);
   letter-spacing: 0.3em;
   margin-top: 8px;
 }
@@ -125,15 +106,13 @@ body::before {
   font-family: var(--font-body);
   font-size: 1rem;
   font-weight: 400;
-  color: var(--ecru);
+  color: var(--text);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   margin-top: 6px;
 }
 
-/* --- PROVERB BLOCK ---
-   Using indigo-mid (a slightly lighter indigo) at 0.45 opacity
-   so the panel reads as blue, not dark brown. */
+/* --- PROVERB BLOCK --- */
 .proverb-block {
   text-align: center;
   padding: 24px 16px;
@@ -142,7 +121,7 @@ body::before {
 
 .proverb-jp {
   font-size: 1rem;
-  color: var(--ecru);
+  color: var(--text);
   letter-spacing: 0.04em;
   margin-bottom: 10px;
 }
@@ -150,14 +129,14 @@ body::before {
 .proverb-en {
   font-size: 0.8rem;
   font-weight: 300;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   font-style: italic;
   line-height: 1.6;
 }
 
 /* --- THEME PICKER (title screen) ---
-   Reuses the same fabric-textured .card look as puzzle cards —
-   deliberately no new colors/textures per theme. */
+   Reuses the same .card look as puzzle cards — deliberately no new
+   colors per theme, just the words change. */
 .theme-list {
   width: 100%;
   display: flex;
@@ -187,8 +166,8 @@ body::before {
   font-family: var(--font-title);
   font-size: 1rem;
   letter-spacing: 0.2em;
-  color: var(--indigo);
-  background-color: var(--copper);
+  color: var(--bg);
+  background-color: var(--accent-pop);
   border: none;
   border-radius: 6px;
   padding: 14px 48px;
@@ -197,7 +176,7 @@ body::before {
 }
 
 .btn-primary:hover {
-  background-color: var(--ecru);
+  background-color: var(--text);
 }
 
 .btn-primary:active {
@@ -215,12 +194,12 @@ body::before {
   padding: 20px 0 12px;
   text-align: center;
   font-size: 0.75rem;
-  color: var(--grey);
+  color: var(--accent);
   line-height: 1.6;
 }
 
 .site-footer a {
-  color: var(--copper);
+  color: var(--accent-pop);
   text-decoration: none;
 }
 
@@ -237,7 +216,7 @@ body::before {
   display: flex;
   justify-content: center;
   padding: 12px 20px 24px;
-  background: linear-gradient(transparent, var(--indigo) 40%);
+  background: linear-gradient(transparent, var(--bg) 40%);
   z-index: 10;
 }
 
@@ -250,7 +229,7 @@ body::before {
 
 .puzzle-count {
   font-size: 0.75rem;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   margin-bottom: 6px;
@@ -259,26 +238,26 @@ body::before {
 .puzzle-title {
   font-family: var(--font-title);
   font-size: 2rem;
-  color: var(--ecru);
-  text-shadow: 1px 1px 0px var(--copper);
+  color: var(--text);
+  text-shadow: 1px 1px 0px var(--accent);
   margin-bottom: 10px;
 }
 
 .puzzle-instruction {
   font-size: 0.85rem;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   line-height: 1.6;
   margin-bottom: 10px;
 }
 
 .attempts-left {
   font-size: 0.8rem;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   letter-spacing: 0.05em;
 }
 
 .attempts-left span {
-  color: var(--copper);
+  color: var(--accent);
   font-weight: 700;
 }
 
@@ -294,9 +273,7 @@ body::before {
 
 .card {
   width: 100%;
-  background-image: url('images/fabric.jpg');
-  background-size: cover;
-  background-position: center;
+  background-color: rgba(253, 251, 212, 0.06);
   border-radius: 10px;
   padding: 16px 20px;
   cursor: default;
@@ -312,20 +289,11 @@ body::before {
   user-select: none;
 }
 
-/* Dark overlay on each card so text is readable over the fabric texture */
-.card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background-color: rgba(26, 31, 60, 0.55);
-  border-radius: 8px;
-}
-
 .card-drag-handle {
   position: relative;
   z-index: 1;
   font-size: 1.6rem;
-  color: var(--ecru);
+  color: var(--text);
   opacity: 0.7;
   padding: 8px 14px;
   touch-action: none;
@@ -350,13 +318,13 @@ body::before {
 .card-label {
   font-family: var(--font-title);
   font-size: 1rem;
-  color: var(--ecru);
+  color: var(--text);
   letter-spacing: 0.05em;
 }
 
 .card-sub {
   font-size: 0.75rem;
-  color: var(--copper);
+  color: var(--accent);
   letter-spacing: 0.1em;
 }
 
@@ -367,11 +335,11 @@ body::before {
 }
 
 .card.correct {
-  border-color: var(--copper);
+  border-color: var(--accent-pop);
 }
 
 .card.incorrect {
-  border-color: var(--grey);
+  border-color: var(--accent);
 }
 
 .card.dragging {
@@ -381,13 +349,8 @@ body::before {
 }
 
 .card-placeholder {
-  border: 2px dashed rgba(245, 240, 232, 0.28);
-  background: rgba(245, 240, 232, 0.04);
-}
-
-/* Suppress the dark fabric overlay so the dashed placeholder reads as empty */
-.card-placeholder::before {
-  content: none;
+  border: 2px dashed rgba(253, 251, 212, 0.28);
+  background: rgba(253, 251, 212, 0.04);
 }
 
 .card[data-locked="true"] {
@@ -398,7 +361,7 @@ body::before {
 .correct-banner {
   font-family: var(--font-title);
   font-size: 1.8rem;
-  color: var(--copper);
+  color: var(--accent-pop);
   text-align: center;
   letter-spacing: 0.1em;
   padding: 16px 0;
@@ -413,7 +376,7 @@ body::before {
 /* --- BORDER HINT --- */
 .border-hint {
   font-size: 0.72rem;
-  color: var(--copper);
+  color: var(--accent);
   text-align: center;
   letter-spacing: 0.05em;
   margin-top: -4px;
@@ -434,8 +397,8 @@ body::before {
   margin-top: 8px;
 }
 
-.results-outcome.won  { color: var(--copper); }
-.results-outcome.lost { color: var(--grey); }
+.results-outcome.won  { color: var(--accent-pop); }
+.results-outcome.lost { color: var(--accent); }
 
 .facts-list {
   width: 100%;
@@ -446,8 +409,8 @@ body::before {
 }
 
 .fact-card {
-  background-color: rgba(37, 43, 80, 0.6);
-  border-left: 3px solid var(--copper);
+  background-color: rgba(253, 251, 212, 0.08);
+  border-left: 3px solid var(--accent);
   border-radius: 6px;
   padding: 12px 16px;
 }
@@ -462,7 +425,7 @@ body::before {
 .fact-position {
   font-family: var(--font-title);
   font-size: 1.2rem;
-  color: var(--copper);
+  color: var(--accent);
   min-width: 20px;
 }
 
@@ -470,19 +433,19 @@ body::before {
   display: block;
   font-family: var(--font-title);
   font-size: 0.9rem;
-  color: var(--ecru);
+  color: var(--text);
 }
 
 .fact-sub {
   display: block;
   font-size: 0.75rem;
-  color: var(--copper);
+  color: var(--accent);
   letter-spacing: 0.05em;
 }
 
 .fact-text {
   font-size: 0.8rem;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   line-height: 1.6;
 }
 
@@ -503,7 +466,7 @@ body::before {
   align-items: center;
   gap: 14px;
   padding: 20px 0;
-  border-bottom: 1px solid rgba(184, 115, 51, 0.25);
+  border-bottom: 1px solid rgba(135, 134, 114, 0.25);
 }
 
 .share-card-canvas {
@@ -518,9 +481,9 @@ body::before {
   font-family: var(--font-title);
   font-size: 0.85rem;
   letter-spacing: 0.15em;
-  color: var(--copper);
+  color: var(--accent-pop);
   background: transparent;
-  border: 2px solid var(--copper);
+  border: 2px solid var(--accent-pop);
   border-radius: 6px;
   padding: 10px 32px;
   cursor: pointer;
@@ -528,13 +491,13 @@ body::before {
 }
 
 .btn-share:hover {
-  background-color: var(--copper);
-  color: var(--indigo);
+  background-color: var(--accent-pop);
+  color: var(--bg);
 }
 
 .sources-line {
   font-size: 0.65rem;
-  color: var(--grey);
+  color: var(--accent);
   text-align: center;
   letter-spacing: 0.05em;
   line-height: 1.6;
@@ -556,18 +519,18 @@ body::before {
 .congrats-block h2 {
   font-family: var(--font-title);
   font-size: 1.6rem;
-  color: var(--ecru);
+  color: var(--text);
   line-height: 1.4;
 }
 
 .follow-text {
   font-size: 0.9rem;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   line-height: 1.8;
 }
 
 .follow-text strong {
-  color: var(--copper);
+  color: var(--accent);
 }
 
 /* --- CONGRATS TITLE DISPLAY --- */
@@ -583,7 +546,7 @@ body::before {
 
 .congrats-earned-label {
   font-size: 0.7rem;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   letter-spacing: 0.25em;
   text-transform: uppercase;
 }
@@ -597,7 +560,7 @@ body::before {
 
 .congrats-score {
   font-size: 0.85rem;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   letter-spacing: 0.08em;
 }
 
@@ -612,9 +575,9 @@ body::before {
   font-family: var(--font-title);
   font-size: 0.85rem;
   letter-spacing: 0.15em;
-  color: var(--copper);
+  color: var(--accent-pop);
   background: transparent;
-  border: 2px solid var(--copper);
+  border: 2px solid var(--accent-pop);
   border-radius: 6px;
   padding: 10px 32px;
   cursor: pointer;
@@ -623,14 +586,14 @@ body::before {
 }
 
 .btn-play-again:hover {
-  background-color: var(--copper);
-  color: var(--indigo);
+  background-color: var(--accent-pop);
+  color: var(--bg);
 }
 
 /* Ko-fi support link on congrats screen */
 .kofi-link {
   font-size: 0.8rem;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   text-decoration: none;
   letter-spacing: 0.05em;
   margin-top: 4px;
@@ -640,14 +603,14 @@ body::before {
 
 .kofi-link:hover {
   opacity: 1;
-  color: var(--copper);
+  color: var(--accent-pop);
 }
 
 /* START OVER link below CONTINUE button on title screen */
 .btn-start-over {
   font-family: var(--font-body);
   font-size: 0.75rem;
-  color: var(--ecru-dim);
+  color: var(--text-dim);
   background: transparent;
   border: none;
   cursor: pointer;
