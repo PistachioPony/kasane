@@ -25,7 +25,7 @@
 
   html, body {
     margin: 0;
-    background: #0d0f1a;
+    background: var(--bg);
   }
 
   body {
@@ -42,7 +42,6 @@
     background: var(--bg);
     min-height: 100vh;
     padding: 20px 20px 40px;
-    transition: background-color 0.2s ease;
   }
 
   /* ---- control panel ---- */
@@ -140,54 +139,65 @@
     margin-bottom: 18px;
   }
 
-  /* ---- cards ---- */
+  /* ---- cards ----
+     Handle is a single full-height strip on the trailing (right) edge —
+     matches iOS's system reorder-control convention. .card itself carries
+     no horizontal padding on the handle side; .card-content carries the
+     visual padding instead, so the handle can flush to the card's edge
+     and use align-self:stretch to fill the card's full height as its
+     touch target, regardless of how short the card gets. */
   #card-list {
     display: flex;
     flex-direction: column;
     gap: 10px;
   }
 
-  #stage[data-compact="true"] #card-list { gap: 7px; }
+  #stage[data-compact="true"] #card-list { gap: 5px; }
 
   .card {
     background-color: color-mix(in srgb, var(--bg) 85%, white 15%);
     border-radius: 10px;
-    padding: 16px 20px;
     display: flex;
-    align-items: center;
-    gap: 0;
+    align-items: stretch;
     border: 2px solid transparent;
-    transition: border-color 0.2s ease, transform 0.1s ease, padding 0.2s ease;
+    transition: border-color 0.2s ease, transform 0.1s ease;
     position: relative;
+    overflow: hidden;
     touch-action: pan-y;
     user-select: none;
-  }
-
-  #stage[data-compact="true"] .card {
-    padding: 9px 14px;
-    border-radius: 8px;
-  }
-
-  .card-handle {
-    font-size: 1.6rem;
-    color: var(--text);
-    opacity: 0.7;
-    padding: 8px 14px;
-    touch-action: none;
-    cursor: grab;
-    flex-shrink: 0;
-  }
-
-  #stage[data-compact="true"] .card-handle {
-    font-size: 1.15rem;
-    padding: 4px 8px;
   }
 
   .card-content {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: 4px;
     flex: 1;
+    min-width: 0;
+    padding: 14px 8px 14px 20px;
+  }
+
+  #stage[data-compact="true"] .card-content {
+    padding: 7px 6px 7px 14px;
+    gap: 2px;
+  }
+
+  .card-handle {
+    width: 44px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--text);
+    opacity: 0.7;
+    touch-action: none;
+    cursor: grab;
+  }
+
+  #stage[data-compact="true"] .card-handle {
+    width: 36px;
+    font-size: 1.05rem;
   }
 
   .card-label {
@@ -204,12 +214,8 @@
     letter-spacing: 0.08em;
   }
 
-  #stage[data-compact="true"] .card-label { font-size: 0.82rem; }
-  #stage[data-compact="true"] .card-sub   { font-size: 0.65rem; }
-
-  .card.armed {
-    transform: scale(1.02);
-  }
+  #stage[data-compact="true"] .card-label { font-size: 0.74rem; }
+  #stage[data-compact="true"] .card-sub   { font-size: 0.6rem; }
 
   .card.dragging {
     cursor: grabbing;
@@ -235,7 +241,7 @@
   #filler p { margin-bottom: 14px; }
 
   @media (prefers-reduced-motion: reduce) {
-    .card, .card-handle { transition: none; }
+    .card { transition: none; }
   }
 </style>
 </head>
@@ -245,14 +251,6 @@
 
   <div id="panel">
     <p class="panel-title">Card interaction tester</p>
-
-    <div class="toggle-row">
-      <span class="toggle-label">Grab method</span>
-      <div class="segmented" id="grab-toggle">
-        <button data-value="handle" class="active">Handles</button>
-        <button data-value="hold">Press &amp; hold</button>
-      </div>
-    </div>
 
     <div class="toggle-row">
       <span class="toggle-label">Card size</span>
@@ -272,11 +270,11 @@
   </div>
 
   <p class="caption" id="caption">
-    <strong>Try it:</strong> scroll down past the cards without picking one up, then drag a card to reorder it. With handles, grab the ⠿ icon. With press &amp; hold, press anywhere on a card and hold still for a beat before moving it — on a mouse, that means keep the button held down without releasing.
+    <strong>Try it:</strong> scroll down past the cards without picking one up, then grab the ⠿ strip on the right edge of a card to reorder it. The whole right-hand strip is tappable, not just the icon itself.
   </p>
 
   <p class="caption" id="status" style="border-color: var(--accent-pop);">
-    <strong>Status:</strong> <span id="status-text">idle — press a card</span>
+    <strong>Status:</strong> <span id="status-text">idle</span>
   </p>
 
   <h2 class="puzzle-title">The Denim Trail</h2>
@@ -286,7 +284,6 @@
 
   <div id="filler">
     <p>This space exists purely so there's something real to scroll through — keep scrolling to see how it feels to pass over the cards above without accidentally grabbing one.</p>
-    <p>On a phone, try a quick flicking swipe (should always just scroll) versus a slower, deliberate press (should only start a drag in "press &amp; hold" mode, or only from the handle in "handles" mode).</p>
     <p>Nothing below this point is part of the actual puzzle — it's just scroll filler.</p>
     <p>Keep going.</p>
     <p>Almost there.</p>
@@ -307,27 +304,24 @@
 
   const stage = document.getElementById('stage');
   const cardList = document.getElementById('card-list');
+  const statusText = document.getElementById('status-text');
 
   let order = ITEMS.map(i => i.id);
   // light shuffle so it's not trivially in order
   order = [order[2], order[0], order[4], order[1], order[5], order[3]];
 
-  let grabMethod = 'handle';
+  function setStatus(text) { statusText.textContent = text; }
 
   function render() {
     cardList.innerHTML = order.map(id => {
       const item = ITEMS.find(i => i.id === id);
-      const handle = grabMethod === 'handle'
-        ? `<span class="card-handle">⠿</span>`
-        : '';
       return `
         <div class="card" data-id="${item.id}">
-          ${handle}
           <div class="card-content">
             <span class="card-label">${item.label}</span>
             <span class="card-sub">${item.sub}</span>
           </div>
-          ${handle}
+          <span class="card-handle">⠿</span>
         </div>
       `;
     }).join('');
@@ -346,15 +340,11 @@
     });
   }
 
-  wireSegmented('grab-toggle', value => {
-    grabMethod = value;
-    render();
-  });
   wireSegmented('size-toggle', value => {
     stage.dataset.compact = value;
   });
   wireSegmented('skin-toggle', value => {
-    stage.dataset.skin = value;
+    document.body.dataset.skin = value;
   });
 
   // ---- drag & drop (mirrors the real game's pointer-event approach) ----
@@ -366,15 +356,8 @@
   let placeholder = null;
   let startX = 0, startY = 0;
   let grabOffsetX = 0, grabOffsetY = 0;
-  let holdTimer = null;
-  let armedCard = null;
 
   const THRESHOLD = 8;
-  const HOLD_MS = 320;
-  const HOLD_JITTER = 6;
-
-  const statusText = document.getElementById('status-text');
-  function setStatus(text) { statusText.textContent = text; }
 
   function beginDrag(card, x, y) {
     setStatus('dragging — drop it in a new spot');
@@ -396,7 +379,6 @@
     draggedCard.style.top = rect.top + 'px';
     draggedCard.style.zIndex = 1000;
     draggedCard.style.pointerEvents = 'none';
-    draggedCard.classList.remove('armed');
     draggedCard.classList.add('dragging');
   }
 
@@ -438,55 +420,24 @@
 
     placeholder = null;
     draggedCard = null;
-    setStatus('idle — press a card');
+    setStatus('idle');
   }
 
-  function clearHold(reason) {
-    if (holdTimer) clearTimeout(holdTimer);
-    holdTimer = null;
-    if (armedCard) armedCard.classList.remove('armed');
-    armedCard = null;
-    if (reason) setStatus(reason);
-  }
-
-  // Called after every render() — only wires per-card pointerdown listeners.
+  // Called after every render() — only wires per-card handle listeners.
   // Document-level listeners (below, outside this function) stay attached
   // once for the page's whole lifetime.
   function initDrag() {
-    // --- handle mode: pointerdown on the ⠿ icon starts tracking immediately ---
     cardList.querySelectorAll('.card-handle').forEach(handle => {
       handle.addEventListener('pointerdown', e => {
         pendingCard = handle.closest('.card');
         startX = e.clientX;
         startY = e.clientY;
+        setStatus('handle grabbed — move to drag');
       });
     });
-
-    // --- press & hold mode: pointerdown anywhere on the card arms a timer ---
-    if (grabMethod === 'hold') {
-      cardList.querySelectorAll('.card').forEach(card => {
-        card.addEventListener('pointerdown', e => {
-          startX = e.clientX;
-          startY = e.clientY;
-          armedCard = card;
-          setStatus('holding — keep still…');
-          holdTimer = setTimeout(() => {
-            if (!armedCard) return;
-            armedCard.classList.add('armed');
-            pendingCard = armedCard;
-            setStatus('armed! move to drag');
-          }, HOLD_MS);
-        });
-      });
-    }
   }
 
   document.addEventListener('pointermove', e => {
-    if (holdTimer && armedCard && !pendingCard) {
-      const dx = e.clientX - startX, dy = e.clientY - startY;
-      if (Math.sqrt(dx * dx + dy * dy) > HOLD_JITTER) clearHold('moved too soon — that read as a scroll, not a grab');
-    }
-
     if (pendingCard && !draggedCard) {
       const dx = e.clientX - startX, dy = e.clientY - startY;
       if (Math.sqrt(dx * dx + dy * dy) < THRESHOLD) return;
@@ -499,16 +450,14 @@
   document.addEventListener('pointerup', () => {
     const wasDragging = !!draggedCard;
     pendingCard = null;
-    clearHold();
     endDrag();
-    if (!wasDragging) setStatus('idle — press a card');
+    if (!wasDragging) setStatus('idle');
   });
   document.addEventListener('pointercancel', () => {
     const wasDragging = !!draggedCard;
     pendingCard = null;
-    clearHold();
     endDrag();
-    if (!wasDragging) setStatus('idle — press a card');
+    if (!wasDragging) setStatus('idle');
   });
 
   render();
