@@ -1,3 +1,8 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Kasane — card interaction tester</title>
 <style>
   /* ---- Kasane's real tokens, both skins, lifted from the live game ---- */
@@ -233,6 +238,8 @@
     .card, .card-handle { transition: none; }
   }
 </style>
+</head>
+<body>
 
 <div id="stage" data-compact="false">
 
@@ -397,7 +404,7 @@
     draggedCard.style.left = (x - grabOffsetX) + 'px';
     draggedCard.style.top = (y - grabOffsetY) + 'px';
 
-    const SCROLL_ZONE = 80, SCROLL_SPEED = 6;
+    const SCROLL_ZONE = 40, SCROLL_SPEED = 3;
     const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
     if (y > window.innerHeight - SCROLL_ZONE && window.scrollY < maxScroll) {
       window.scrollBy(0, SCROLL_SPEED);
@@ -507,3 +514,5 @@
   render();
 })();
 </script>
+</body>
+</html>
