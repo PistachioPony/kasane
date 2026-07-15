@@ -152,7 +152,8 @@
     gap: 10px;
   }
 
-  #stage[data-compact="true"] #card-list { gap: 5px; }
+  #stage[data-size="medium"]  #card-list { gap: 8px; }
+  #stage[data-size="compact"] #card-list { gap: 5px; }
 
   .card {
     background-color: color-mix(in srgb, var(--bg) 85%, white 15%);
@@ -177,7 +178,12 @@
     padding: 14px 8px 14px 20px;
   }
 
-  #stage[data-compact="true"] .card-content {
+  #stage[data-size="medium"] .card-content {
+    padding: 11px 8px 11px 18px;
+    gap: 3px;
+  }
+
+  #stage[data-size="compact"] .card-content {
     padding: 7px 6px 7px 14px;
     gap: 2px;
   }
@@ -195,7 +201,12 @@
     cursor: grab;
   }
 
-  #stage[data-compact="true"] .card-handle {
+  #stage[data-size="medium"] .card-handle {
+    width: 40px;
+    font-size: 1.25rem;
+  }
+
+  #stage[data-size="compact"] .card-handle {
     width: 36px;
     font-size: 1.05rem;
   }
@@ -214,8 +225,11 @@
     letter-spacing: 0.08em;
   }
 
-  #stage[data-compact="true"] .card-label { font-size: 0.74rem; }
-  #stage[data-compact="true"] .card-sub   { font-size: 0.6rem; }
+  #stage[data-size="medium"]  .card-label { font-size: 0.92rem; }
+  #stage[data-size="medium"]  .card-sub   { font-size: 0.72rem; }
+
+  #stage[data-size="compact"] .card-label { font-size: 0.74rem; }
+  #stage[data-size="compact"] .card-sub   { font-size: 0.6rem; }
 
   .card.dragging {
     cursor: grabbing;
@@ -247,7 +261,7 @@
 </head>
 <body>
 
-<div id="stage" data-compact="false">
+<div id="stage" data-size="medium">
 
   <div id="panel">
     <p class="panel-title">Card interaction tester</p>
@@ -255,8 +269,9 @@
     <div class="toggle-row">
       <span class="toggle-label">Card size</span>
       <div class="segmented" id="size-toggle">
-        <button data-value="false" class="active">Current</button>
-        <button data-value="true">Compact</button>
+        <button data-value="current">Current</button>
+        <button data-value="medium" class="active">Medium</button>
+        <button data-value="compact">Compact</button>
       </div>
     </div>
 
@@ -341,7 +356,7 @@
   }
 
   wireSegmented('size-toggle', value => {
-    stage.dataset.compact = value;
+    stage.dataset.size = value;
   });
   wireSegmented('skin-toggle', value => {
     document.body.dataset.skin = value;
