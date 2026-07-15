@@ -158,7 +158,6 @@ function loadPuzzle(index) {
         const item = puzzle.items.find(i => i.id === id);
         return `
           <div class="card" data-id="${item.id}">
-            <span class="card-drag-handle">⠿</span>
             <div class="card-content">
               <span class="card-label">${item.label}</span>
               <span class="card-sub">${item.sub}</span>
