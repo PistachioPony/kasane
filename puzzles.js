@@ -210,7 +210,7 @@ const THEMES = {
         title: 'Worn Paths',
         instruction: 'Order these boot styles by when each design first emerged — earliest to most recent.',
         items: [
-          { id: 'cowboy',   label: 'Cowboy Boot',  sub: 'Texas, 1870s' },
+          { id: 'cowboy',   label: 'Cowboy Boot',  sub: 'Vaquero-inspired heel' },
           { id: 'harness',  label: 'Harness Boot',  sub: 'Cavalry riding boot' },
           { id: 'logger',   label: 'Logger Boot',   sub: 'Pacific Northwest' },
           { id: 'engineer', label: 'Engineer Boot', sub: 'Motorcycle culture' },
@@ -230,11 +230,11 @@ const THEMES = {
         title: 'The Originals',
         instruction: 'Order these iconic boot models by their debut year — earliest to most recent.',
         items: [
-          { id: 'wolverine-orig', label: 'Wolverine 1000 Mile', sub: '1914' },
-          { id: 'redwing-orig',   label: 'Red Wing Iron Ranger', sub: '1938' },
-          { id: 'whites-orig',    label: "White's Smoke Jumper", sub: '1940s' },
-          { id: 'alden-orig',     label: 'Alden Indy Boot',      sub: 'WWII-era design' },
-          { id: 'wesco-orig',     label: 'Wesco Jobmaster',      sub: 'Mid-century' },
+          { id: 'wolverine-orig', label: 'Wolverine 1000 Mile', sub: '1,000 miles of wear' },
+          { id: 'redwing-orig',   label: 'Red Wing Iron Ranger', sub: 'Cap-toe silhouette' },
+          { id: 'whites-orig',    label: "White's Smoke Jumper", sub: "Smokejumper's boot" },
+          { id: 'alden-orig',     label: 'Alden Indy Boot',      sub: 'Plain-toe classic' },
+          { id: 'wesco-orig',     label: 'Wesco Jobmaster',      sub: 'Built one at a time' },
         ],
         correctOrder: ['wolverine-orig', 'redwing-orig', 'whites-orig', 'alden-orig', 'wesco-orig'],
         facts: [
@@ -250,11 +250,11 @@ const THEMES = {
         title: 'Boot State of Mind',
         instruction: 'Order these heritage brands by the U.S. state where they\'re made — alphabetically, A to Z.',
         items: [
-          { id: 'alden-state',     label: 'Alden',    sub: 'Massachusetts' },
-          { id: 'wolverine-state', label: 'Wolverine', sub: 'Michigan' },
-          { id: 'redwing-state',   label: 'Red Wing',  sub: 'Minnesota' },
-          { id: 'wesco-state',     label: 'Wesco',     sub: 'Oregon' },
-          { id: 'whites-state',    label: "White's",   sub: 'Washington' },
+          { id: 'alden-state',     label: 'Alden',    sub: 'Indy Boot maker' },
+          { id: 'wolverine-state', label: 'Wolverine', sub: '1000 Mile Boot maker' },
+          { id: 'redwing-state',   label: 'Red Wing',  sub: 'Iron Ranger maker' },
+          { id: 'wesco-state',     label: 'Wesco',     sub: 'Jobmaster maker' },
+          { id: 'whites-state',    label: "White's",   sub: 'Smoke Jumper maker' },
         ],
         correctOrder: ['alden-state', 'wolverine-state', 'redwing-state', 'wesco-state', 'whites-state'],
         facts: [
