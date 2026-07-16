@@ -21,6 +21,13 @@
   --body-texture:    url('images/fabdetail.jpg');
   --card-overlay-pct: 55%;
 
+  /* Correct/incorrect signal colors — fixed, not skin-tinted. This is a
+     functional signal, not a decorative one, so it needs to read the
+     same way regardless of which skin is active rather than being
+     reinterpreted per theme the way --accent is. */
+  --success: #5C8A4A;
+  --error:   #c0392b;
+
   --font-title:  'Alfa Slab One', serif;
   --font-body:   'Noto Sans JP', sans-serif;
 }
@@ -397,13 +404,13 @@ body::before {
 }
 
 .card.correct {
-  border-color: var(--accent-pop);
+  border-color: var(--success);
   border-width: 3px;
-  box-shadow: 0 0 14px color-mix(in srgb, var(--accent-pop) 55%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--success) 55%, transparent);
 }
 
 .card.incorrect {
-  border-color: var(--text-dim);
+  border-color: var(--error);
   border-width: 3px;
 }
 

@@ -272,7 +272,7 @@ function checkAnswer() {
     const hint = document.createElement('p');
     hint.id = 'border-hint';
     hint.className = 'border-hint';
-    hint.textContent = 'Bright border = correct position · Muted border = incorrect';
+    hint.textContent = 'Green border = correct position · Red border = incorrect';
     document.getElementById('card-list').after(hint);
   }
 
