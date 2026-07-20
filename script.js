@@ -17,7 +17,6 @@ const state = {
   currentOrder: [],         // the player's current card arrangement (array of ids)
   results: [],              // stores result of each completed puzzle for share card
   lockedItemIds: [],        // ids of cards locked in correct position
-  hasShownPreviewScroll: false, // whether the onboarding scroll-to-bottom has already played this session
 };
 
 // --------------------------------
@@ -162,11 +161,7 @@ function loadPuzzle(index) {
         const item = puzzle.items.find(i => i.id === id);
         return `
           <div class="card" data-id="${item.id}">
-            <div class="card-content">
-              <span class="card-label">${item.label}</span>
-              <span class="card-sub">${item.sub}</span>
-            </div>
-            <span class="card-drag-handle">⠿</span>
+            <span class="pill-label">${item.label}</span>
           </div>
         `;
       }).join('')}
@@ -185,18 +180,68 @@ function loadPuzzle(index) {
   // Activate drag and drop on the cards
   initDragAndDrop();
 
-  // Preview scroll — briefly scroll down to show all cards and the submit
-  // button exist, then return to top. Lets the player know what they're working with.
-  // Only needed once per session — by the second puzzle they already know the pattern.
-  if (!state.hasShownPreviewScroll) {
-    state.hasShownPreviewScroll = true;
-    setTimeout(() => {
-      window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-      }, 900);
-    }, 500);
-  }
+  // First-play tutorial — an animated hand demos the drag until the
+  // player completes one real drag of their own.
+  maybeShowDragTutorial();
+}
+
+// --------------------------------
+// 6b. DRAG TUTORIAL
+// Shown on the puzzle screen until the player has completed a single
+// successful drag (tracked in localStorage, across sessions). A hand
+// presses the top card, drags it down one slot and back, on a loop.
+// The overlay ignores pointer events, so the first real touch lands on
+// the cards underneath and dismisses the demo.
+// --------------------------------
+const TUTORIAL_DONE_KEY = 'kasane-drag-tutorial-done';
+
+function maybeShowDragTutorial() {
+  if (localStorage.getItem(TUTORIAL_DONE_KEY)) return;
+
+  const cardList = document.getElementById('card-list');
+
+  // Resuming mid-puzzle with locked (solved) cards — don't animate those.
+  if (cardList.querySelector('.card[data-locked]')) return;
+
+  const tutorial = document.createElement('div');
+  tutorial.id = 'drag-tutorial';
+  tutorial.innerHTML = `
+    <svg class="tutorial-hand" viewBox="0 0 60 84" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30 2
+               c-4.4 0 -8 3.6 -8 8
+               v28
+               l-2.5 -2.2
+               c-3.2 -2.9 -8.2 -2.7 -11 0.6
+               c-2.6 3 -2.4 7.5 0.4 10.3
+               l14 14.3
+               c3.4 3.5 8 5.4 12.9 5.4
+               h6.2
+               c9.4 0 17 -7.6 17 -17
+               v-13.4
+               c0 -3.6 -2.9 -6.5 -6.5 -6.5
+               c-1.3 0 -2.6 0.4 -3.6 1.1
+               c-0.9 -2.3 -3.1 -3.9 -5.7 -3.9
+               c-1.3 0 -2.5 0.4 -3.5 1.1
+               c-0.9 -2.2 -3.1 -3.8 -5.7 -3.8
+               c-0.7 0 -1.4 0.1 -2 0.3
+               V10
+               c0 -4.4 -3.6 -8 -8 -8
+               z"
+            style="fill: var(--text); stroke: var(--bg);" stroke-width="3" stroke-linejoin="round"/>
+    </svg>
+    <div class="tutorial-bubble">Drag the cards to place them in the correct order.</div>
+  `;
+  cardList.appendChild(tutorial);
+
+  // The demo drags exactly one card slot regardless of screen or font.
+  const firstCard = cardList.querySelector('.card');
+  document.documentElement.style.setProperty('--slot', (firstCard.offsetHeight + 8) + 'px');
+  cardList.classList.add('demo-running');
+
+  document.addEventListener('pointerdown', () => {
+    tutorial.classList.add('done');
+    cardList.classList.remove('demo-running');
+  }, { once: true });
 }
 
 // --------------------------------
@@ -633,7 +678,7 @@ function initDragAndDrop() {
   const THRESHOLD = 8;
 
   function onPointerDown(e) {
-    const card = e.currentTarget.closest('.card');
+    const card = e.currentTarget; // the whole card is the drag surface
     if (card.dataset.locked) return;
     pendingCard = card;
     startX = e.clientX;
@@ -688,19 +733,6 @@ function initDragAndDrop() {
     draggedCard.style.left = (e.clientX - grabOffsetX) + 'px';
     draggedCard.style.top = (e.clientY - grabOffsetY) + 'px';
 
-    // Edge scrolling — when dragging near the top or bottom of the viewport,
-    // nudge the page so cards below (or above) the visible area become reachable.
-    // Clamped to the page's real scrollable range so it can't scroll past
-    // actual content into empty space.
-    const SCROLL_ZONE = 80;
-    const SCROLL_SPEED = 6;
-    const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-    if (e.clientY > window.innerHeight - SCROLL_ZONE && window.scrollY < maxScroll) {
-      window.scrollBy(0, SCROLL_SPEED);
-    } else if (e.clientY < SCROLL_ZONE && window.scrollY > 0) {
-      window.scrollBy(0, -SCROLL_SPEED);
-    }
-
     // Find the card under the pointer and swap the placeholder if needed.
     // draggedCard itself has pointer-events:none, so elementFromPoint sees
     // straight through to whatever's underneath (the placeholder or another card).
@@ -737,10 +769,14 @@ function initDragAndDrop() {
     placeholder.replaceWith(draggedCard);
     placeholder = null;
     draggedCard = null;
+
+    // One completed drag means the player has the mechanic — the
+    // first-play tutorial never needs to show again.
+    localStorage.setItem(TUTORIAL_DONE_KEY, '1');
   }
 
-  cardList.querySelectorAll('.card-drag-handle').forEach(handle => {
-    handle.addEventListener('pointerdown', onPointerDown);
+  cardList.querySelectorAll('.card').forEach(card => {
+    card.addEventListener('pointerdown', onPointerDown);
   });
 
   document.addEventListener('pointermove', onPointerMove);

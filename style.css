@@ -253,51 +253,57 @@ body::before {
   text-decoration: underline;
 }
 
-/* --- STICKY SUBMIT BAR --- */
+/* --- SUBMIT BAR ---
+   The puzzle screen doesn't scroll anymore, so the bar no longer needs
+   to float over content — it just sits at the bottom of the screen's
+   flex column. */
 .submit-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  width: 100%;
   display: flex;
   justify-content: center;
-  padding: 12px 20px 24px;
-  background: linear-gradient(transparent, var(--bg) 40%);
-  z-index: 10;
+  margin-top: auto;
+  padding: 16px 0 8px;
 }
 
-/* --- PUZZLE SCREEN --- */
+/* --- PUZZLE SCREEN ---
+   Header is deliberately compact: with pill cards the whole puzzle —
+   header, cards, submit — fits one phone screen with no scrolling,
+   which is what makes whole-card drag possible. */
+#screen-puzzle {
+  padding-top: 16px;
+}
+
 .puzzle-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 14px;
   width: 100%;
 }
 
 .puzzle-count {
-  font-size: 0.75rem;
+  font-size: 0.7rem;
   color: var(--text-dim);
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .puzzle-title {
   font-family: var(--font-title);
-  font-size: 2rem;
+  font-size: 1.35rem;
   color: var(--text);
   text-shadow: 1px 1px 0px var(--accent);
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
 .puzzle-instruction {
-  font-size: 0.85rem;
+  font-size: 0.78rem;
   color: var(--text-dim);
-  line-height: 1.6;
-  margin-bottom: 10px;
+  line-height: 1.35;
+  margin-bottom: 6px;
 }
 
 .attempts-left {
-  font-size: 0.8rem;
+  font-size: 0.7rem;
   color: var(--text-dim);
   letter-spacing: 0.05em;
 }
@@ -309,19 +315,17 @@ body::before {
 
 /* --- CARDS --- */
 .card-list {
+  position: relative; /* anchors the drag-tutorial overlay */
   width: 100%;
   display: flex;
   flex-direction: column;
   gap: 8px;
   margin-bottom: 24px;
-  padding-bottom: 80px;
 }
 
-/* Handle is a single full-height strip on the trailing (right) edge —
-   matches iOS's system reorder-control convention. .card itself carries
-   no padding; .card-content carries the visual padding instead, so the
-   handle can flush to the card's edge and stretch (via the row's
-   align-items:stretch) to the card's full height as its touch target. */
+/* Base .card is shared by the title screen's theme picker (two-line
+   .card-content layout) and the puzzle screen's pills — puzzle-specific
+   overrides are scoped to #card-list below. */
 .card {
   width: 100%;
   background-color: color-mix(in srgb, var(--bg) 85%, white 15%);
@@ -352,19 +356,27 @@ body::before {
   border-radius: 8px;
 }
 
-.card-drag-handle {
-  position: relative;
-  z-index: 1;
-  width: 40px;
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
+/* Puzzle cards are thin single-line pills — the entire card is the drag
+   surface, no handle. touch-action:none is safe here because the puzzle
+   screen fits without scrolling at 4-6 cards; a future 7+ card puzzle
+   would need to revisit this. */
+#card-list .card {
+  flex-wrap: wrap;          /* an over-long label wraps visibly instead of clipping */
+  align-items: baseline;
   justify-content: center;
-  font-size: 1.25rem;
-  color: var(--text);
-  opacity: 0.7;
+  padding: 10px 14px;
   touch-action: none;
   cursor: grab;
+}
+
+.pill-label {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-title);
+  font-size: 0.88rem;
+  color: var(--text);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
 }
 
 .card-content {
@@ -397,10 +409,8 @@ body::before {
   letter-spacing: 0.1em;
 }
 
-.card[data-locked="true"] .card-drag-handle {
-  opacity: 0.2;
+#card-list .card[data-locked="true"] {
   cursor: default;
-  pointer-events: none;
 }
 
 .card.correct {
@@ -423,6 +433,88 @@ body::before {
 .card-placeholder {
   border: 2px dashed color-mix(in srgb, var(--text) 28%, transparent);
   background: color-mix(in srgb, var(--text) 4%, transparent);
+}
+
+/* --- DRAG TUTORIAL ---
+   First-play overlay: a hand presses the top card, drags it down one
+   slot and back, looping. Sits over the card list but ignores all
+   pointer events, so the first real touch lands on the cards beneath.
+   --slot (one card height + gap) is measured and set by script.js. */
+#drag-tutorial {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.35s ease;
+}
+
+#drag-tutorial.done {
+  opacity: 0;
+}
+
+.tutorial-hand {
+  position: absolute;
+  top: 6px;
+  right: 12%;
+  width: 52px;
+  animation: demoHand 4.5s ease-in-out infinite;
+  transform-origin: 50% 20%;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.4));
+}
+
+.tutorial-bubble {
+  position: absolute;
+  top: calc(var(--slot, 52px) + 46px);
+  right: 4%;
+  max-width: 220px;
+  background: var(--accent-pop);
+  color: var(--bg);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1.35;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border-top-right-radius: 2px;
+}
+
+@keyframes demoHand {
+  0%, 6%    { opacity: 0; transform: translateY(0) scale(1); }
+  13%       { opacity: 1; transform: translateY(0) scale(1); }
+  20%       { opacity: 1; transform: translateY(0) scale(0.88); }
+  48%       { opacity: 1; transform: translateY(var(--slot, 52px)) scale(0.88); }
+  56%       { opacity: 1; transform: translateY(var(--slot, 52px)) scale(1); }
+  63%       { opacity: 1; transform: translateY(var(--slot, 52px)) scale(0.88); }
+  88%       { opacity: 1; transform: translateY(0) scale(0.88); }
+  94%, 100% { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* While the demo runs, the top two cards act it out: card 1 is "dragged"
+   down a slot and back, card 2 steps aside and returns. */
+.demo-running .card:nth-child(1) {
+  animation: demoCardA 4.5s ease-in-out infinite;
+  z-index: 10;
+}
+
+.demo-running .card:nth-child(2) {
+  animation: demoCardB 4.5s ease-in-out infinite;
+}
+
+@keyframes demoCardA {
+  0%, 20%   { transform: none; box-shadow: none; }
+  26%       { transform: scale(1.04); box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45); }
+  48%       { transform: translateY(var(--slot, 52px)) scale(1.04); box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45); }
+  56%       { transform: translateY(var(--slot, 52px)) scale(1); box-shadow: none; }
+  63%       { transform: translateY(var(--slot, 52px)) scale(1.04); box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45); }
+  88%       { transform: scale(1.04); box-shadow: 0 14px 24px rgba(0, 0, 0, 0.45); }
+  94%, 100% { transform: none; box-shadow: none; }
+}
+
+@keyframes demoCardB {
+  0%, 26%   { transform: none; }
+  46%       { transform: translateY(calc(-1 * var(--slot, 52px))); }
+  64%       { transform: translateY(calc(-1 * var(--slot, 52px))); }
+  86%, 100% { transform: none; }
 }
 
 /* Suppress the overlay so the dashed placeholder reads as empty */
